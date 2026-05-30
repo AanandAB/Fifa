@@ -63,6 +63,7 @@
       <a href="#" data-section="groups">Groups</a>
       <a href="#" data-section="bracket">Bracket</a>
       <a href="#" data-section="predictor">Predict</a>
+      <a href="#" data-section="watch">📺 Watch</a>
       <a href="#" data-section="quiz">Quiz</a>
       <a href="#" data-section="teams">Teams</a>
       <a href="#" data-section="players">Stars</a>
@@ -329,6 +330,100 @@
       <div class="stat-card chart-card">
         <h3 class="chart-title">FIFA Rankings Distribution</h3>
         <div class="chart-container"><canvas id="rankingChart"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WATCH LIVE -->
+  <section class="section" id="watch" aria-label="Watch Live">
+    <div class="section-header">
+      <h2 class="section-title">📺 Watch Live</h2>
+      <p class="section-desc">Stream every match — US broadcasters + free streaming via Tailscale</p>
+    </div>
+    <div class="watch-grid">
+      <div class="watch-card broadcasters">
+        <div class="watch-card-header">
+          <span class="watch-icon">📡</span>
+          <h3>US Broadcasters</h3>
+        </div>
+        <p class="watch-desc">Official English & Spanish rights holders for all 104 matches</p>
+        <div class="broadcaster-list">
+          <div class="broadcaster-item">
+            <span class="bnet-logo">🦊</span>
+            <div><strong>Fox / Fox Sports</strong><br><span>English · Over-the-air + Cable</span></div>
+          </div>
+          <div class="broadcaster-item">
+            <span class="bnet-logo">📺</span>
+            <div><strong>Telemundo / NBCUniversal</strong><br><span>Spanish · Over-the-air + Peacock</span></div>
+          </div>
+          <div class="broadcaster-item">
+            <span class="bnet-logo">▶️</span>
+            <div><strong>YouTube</strong><br><span>First 10 min of every match free + select full matches</span></div>
+          </div>
+          <div class="broadcaster-item">
+            <span class="bnet-logo">🎵</span>
+            <div><strong>TikTok</strong><br><span>Match clips, highlights & behind-the-scenes</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="watch-card tailscale">
+        <div class="watch-card-header">
+          <span class="watch-icon">🔗</span>
+          <h3>Tailscale Stream Router</h3>
+          <span class="stream-status offline" id="streamStatus">Offline</span>
+        </div>
+        <p class="watch-desc">Route free US broadcast streams to India via your US-based Tailscale node</p>
+        <div class="tailscale-diagram" id="tailscaleDiagram">
+          <div class="ts-node ts-us">
+            <span class="ts-flag">🇺🇸</span>
+            <span class="ts-label">US Node</span>
+            <span class="ts-ip">TS IP: 100.x.x.x</span>
+          </div>
+          <div class="ts-arrow">⟶</div>
+          <div class="ts-node ts-cloud">
+            <span class="ts-icon">☁️</span>
+            <span class="ts-label">Tailscale Mesh</span>
+            <span class="ts-ip">Encrypted Tunnel</span>
+          </div>
+          <div class="ts-arrow">⟶</div>
+          <div class="ts-node ts-in">
+            <span class="ts-flag">🇮🇳</span>
+            <span class="ts-label">India Viewer</span>
+            <span class="ts-ip">Your Device</span>
+          </div>
+        </div>
+        <div class="tailscale-steps">
+          <div class="ts-step"><span class="ts-step-num">1</span> Install Tailscale on your US server & local device</div>
+          <div class="ts-step"><span class="ts-step-num">2</span> Connect both to your Tailscale network (tailnet)</div>
+          <div class="ts-step"><span class="ts-step-num">3</span> On US node: set up nginx reverse proxy to Fox/Telemundo streams</div>
+          <div class="ts-step"><span class="ts-step-num">4</span> Access via your US node's Tailscale IP: <code>http://100.x.x.x:8080</code></div>
+        </div>
+        <div class="tailscale-note">
+          <span>⚠️</span> This routes your personal free-to-air US broadcast through your own Tailscale network. No piracy — you're accessing legally free OTA broadcasts from your US location.
+        </div>
+      </div>
+      <div class="watch-card schedule">
+        <div class="watch-card-header">
+          <span class="watch-icon">📅</span>
+          <h3>Today's Broadcasts</h3>
+        </div>
+        <div class="watch-schedule" id="watchSchedule">
+          <div class="watch-match">
+            <div class="wmatch-teams"><span class="flag-emoji">🇲🇽</span> Mexico vs South Africa <span class="flag-emoji">🇿🇦</span></div>
+            <div class="wmatch-info">June 11 · 15:00 ET · Fox / Telemundo</div>
+            <span class="wmatch-badge free">FREE OTA</span>
+          </div>
+          <div class="watch-match">
+            <div class="wmatch-teams"><span class="flag-emoji">🇺🇸</span> USA vs Paraguay <span class="flag-emoji">🇵🇾</span></div>
+            <div class="wmatch-info">June 12 · 15:00 ET · Fox</div>
+            <span class="wmatch-badge free">FREE OTA</span>
+          </div>
+          <div class="watch-match">
+            <div class="wmatch-teams"><span class="flag-emoji">🇧🇷</span> Brazil vs Morocco <span class="flag-emoji">🇲🇦</span></div>
+            <div class="wmatch-info">June 13 · TBD · Fox Sports</div>
+            <span class="wmatch-badge cable">CABLE</span>
+          </div>
+        </div>
       </div>
     </div>
   </section>

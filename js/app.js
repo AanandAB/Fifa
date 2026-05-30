@@ -1463,6 +1463,191 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ══════════════════════════════════════════════════════════
+  //  FOOTBALL TOUCHES — Goal Celebration, Whistle, Chants
+  // ══════════════════════════════════════════════════════════
+
+  // Goal Horn / Celebration
+  let goalOverlay;
+  function fireGoalCelebration(team) {
+    if (!goalOverlay) {
+      goalOverlay = document.createElement('div');
+      goalOverlay.className = 'goal-overlay';
+      goalOverlay.innerHTML = '<div class="goal-text">⚽ GOOOAL!</div>';
+      document.body.appendChild(goalOverlay);
+    }
+    goalOverlay.classList.add('fire');
+    fireConfetti(80);
+
+    // Whistle sound
+    playWhistle();
+
+    setTimeout(() => goalOverlay.classList.remove('fire'), 2500);
+  }
+
+  // Whistle Audio
+  function playWhistle() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.15);
+      osc.frequency.exponentialRampToValueAtTime(1500, ctx.currentTime + 0.3);
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.4);
+    } catch {}
+  }
+
+  // Global goal celebration hook — press G key or click on any match score
+  document.addEventListener('keydown', e => {
+    if (e.key === 'g' && !e.target.closest('input,textarea,select')) {
+      fireGoalCelebration('Home');
+    }
+  });
+
+  // Click on match scores to trigger goal celebration
+  document.addEventListener('click', e => {
+    const score = e.target.closest('.match-score');
+    if (score) fireGoalCelebration();
+  });
+
+  // Crowd Chant System
+  const CHANTS = [
+    'Olé, Olé, Olé! 🎵',
+    'Vamos, vamos! 🔥',
+    'Who are ya? Who are ya? 👀',
+    'We are the champions! 🏆',
+    'Come on you boys in gold! ⚽',
+    'Defense! 🛡️ Defense! 🛡️',
+    'Shoot! 💥 Shoot! 💥',
+    "You\u2019ll Never Walk Alone! ❤️",
+    'Allez, Allez, Allez! 🇫🇷',
+    'Samba Brasil! 🇧🇷🎵'
+  ];
+
+  function initChantTicker() {
+    // Add chant ticker to broadcast bottom
+    const bbTrack = document.getElementById('bbTrack');
+    if (!bbTrack) return;
+    const chantItems = CHANTS.map(c => `<span class="bb-item"><span class="bb-accent">${c}</span></span>`);
+    bbTrack.innerHTML = chantItems.join('') + chantItems.join('');
+  }
+  initChantTicker();
+
+  // Formation Viewer — show team formation on team card hover
+  function initFormationViewer() {
+    const FORMATIONS = {
+      '4-3-3': [
+        {x:50,y:82},{x:25,y:65},{x:50,y:58},{x:75,y:65},
+        {x:15,y:35},{x:50,y:30},{x:85,y:35},
+        {x:25,y:10},{x:50,y:10},{x:75,y:10}
+      ],
+      '4-4-2': [
+        {x:50,y:85},{x:25,y:68},{x:50,y:60},{x:75,y:68},
+        {x:12,y:38},{x:38,y:38},{x:62,y:38},{x:88,y:38},
+        {x:35,y:12},{x:65,y:12}
+      ],
+      '3-5-2': [
+        {x:50,y:85},{x:22,y:70},{x:50,y:65},{x:78,y:70},
+        {x:10,y:40},{x:30,y:35},{x:50,y:32},{x:70,y:35},{x:90,y:40},
+        {x:35,y:10},{x:65,y:10}
+      ]
+    };
+
+    // Add formation to comparison section
+    const compareSection = document.querySelector('.compare-section');
+    if (!compareSection) return;
+
+    const formationContainer = document.createElement('div');
+    formationContainer.className = 'compare-col';
+    formationContainer.style.cssText = 'max-width: 320px; margin: 20px auto 0; text-align: center;';
+    formationContainer.innerHTML = `
+      <h4 style="font-family:'Barlow Condensed',sans-serif; font-size:0.85rem; color:var(--accent); margin-bottom:8px;">⚽ TACTICAL FORMATION (4-3-3)</h4>
+      <div class="formation-pitch" id="formationPitch">
+        <div class="formation-circle"></div>
+      </div>
+      <div style="display:flex; gap:6px; justify-content:center; margin-top:10px;">
+        <button class="whistle-btn formation-select active" data-formation="4-3-3">4-3-3</button>
+        <button class="whistle-btn formation-select" data-formation="4-4-2">4-4-2</button>
+        <button class="whistle-btn formation-select" data-formation="3-5-2">3-5-2</button>
+      </div>
+      <div style="margin-top:12px;">
+        <button class="whistle-btn" id="whistleBtn">🔔 WHISTLE</button>
+        <button class="whistle-btn" id="goalBtn" style="margin-left:6px;">⚽ GOAL!</button>
+      </div>
+      <div class="chant-ticker"><span class="chant-text">${CHANTS.join(' · ')}</span></div>
+    `;
+    compareSection.appendChild(formationContainer);
+
+    // Render formation
+    const pitch = document.getElementById('formationPitch');
+    let currentFormation = '4-3-3';
+
+    function renderFormation(name) {
+      if (!pitch) return;
+      const dots = FORMATIONS[name];
+      const existing = pitch.querySelectorAll('.formation-dot');
+      existing.forEach(d => d.remove());
+
+      dots.forEach((pos, i) => {
+        const dot = document.createElement('div');
+        dot.className = 'formation-dot';
+        dot.style.left = `${pos.x}%`;
+        dot.style.top = `${pos.y}%`;
+        dot.textContent = i === 0 ? 'GK' : i;
+        pitch.appendChild(dot);
+      });
+    }
+
+    renderFormation('4-3-3');
+
+    // Formation switchers
+    document.querySelectorAll('.formation-select').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.formation-select').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFormation = btn.dataset.formation;
+        renderFormation(currentFormation);
+        const h4 = formationContainer.querySelector('h4');
+        if (h4) h4.textContent = `⚽ TACTICAL FORMATION (${currentFormation})`;
+      });
+    });
+
+    // Whistle button
+    document.getElementById('whistleBtn')?.addEventListener('click', playWhistle);
+
+    // Goal button
+    document.getElementById('goalBtn')?.addEventListener('click', () => fireGoalCelebration());
+
+    // Random formation on team compare change
+    document.getElementById('compareA')?.addEventListener('change', () => {
+      const formations = Object.keys(FORMATIONS);
+      const random = formations[Math.floor(Math.random() * formations.length)];
+      document.querySelector(`.formation-select[data-formation="${random}"]`)?.click();
+    });
+  }
+  initFormationViewer();
+
+  // Stream Status (simulated for the Watch section)
+  function initStreamStatus() {
+    const streamStatus = document.getElementById('streamStatus');
+    if (!streamStatus) return;
+    // In future: ping your Tailscale US node to check if stream relay is up
+    // For now: check every 30s
+    setInterval(() => {
+      const randomOnline = Math.random() > 0.7; // Simulated
+      streamStatus.textContent = randomOnline ? 'Online' : 'Offline';
+      streamStatus.className = `stream-status ${randomOnline ? 'online' : 'offline'}`;
+    }, 30000);
+  }
+  initStreamStatus();
+
+  // ══════════════════════════════════════════════════════════
   //  INITIALIZATION
   // ══════════════════════════════════════════════════════════
 
