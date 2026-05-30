@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FIFA World Cup 2026 — USA · Canada · Mexico</title>
+  <meta name="description" content="The ultimate FIFA World Cup 2026 experience — fixtures, groups, bracket, match predictor, quiz, teams, venues & live updates. Hosted across USA, Canada & Mexico.">
+  <meta name="theme-color" content="#080c18">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FIFA 2026">
+  <link rel="manifest" href="manifest.json">
+  <meta property="og:title" content="FIFA World Cup 2026 — Ultimate Fan Experience">
+  <meta property="og:description" content="Fixtures, groups, bracket, match predictor, quiz, teams & live updates for the 2026 World Cup.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="FIFA 2026 Hub">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://flagcdn.com">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Bebas+Neue&family=DM+Sans:wght@400;500;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-theme="gold">
+
+<!-- Skip Navigation -->
+<a href="#hero" class="skip-nav">Skip to Main Content</a>
+
+<!-- Scroll Progress Bar -->
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+
+<!-- Broadcast Top Bar -->
+<div class="broadcast-top" id="broadcastTop">
+  <div class="broadcast-left">
+    <span class="broadcast-logo">⚽ FIFA WORLD CUP 2026</span>
+    <span class="broadcast-divider">|</span>
+    <span class="broadcast-live-dot" id="bLiveDot"></span>
+    <span class="broadcast-live-label" id="bLiveLabel">OFFLINE</span>
+  </div>
+  <div class="broadcast-center" id="broadcastCenter">USA · CANADA · MEXICO</div>
+  <div class="broadcast-right">
+    <span class="broadcast-temp" id="broadcastTemp">🌡️ 72°F</span>
+    <span class="broadcast-divider">|</span>
+    <span class="broadcast-clock" id="broadcastClock"></span>
+  </div>
+</div>
+
+<!-- Particle Canvas -->
+<canvas id="particleCanvas"></canvas>
+
+<!-- Mobile Menu Overlay -->
+<div class="mobile-overlay" id="mobileOverlay" aria-hidden="true"></div>
+
+<!-- Navbar -->
+<nav class="navbar" id="navbar" aria-label="Main navigation">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo" data-section="hero" aria-label="FIFA 2026 Home">
+      <span class="logo-icon">⚽</span>
+      <span class="logo-text">FIFA<span class="gold">2026</span></span>
+    </a>
+    <div class="nav-links" id="navLinks" role="navigation">
+      <a href="#" data-section="fixtures">Fixtures</a>
+      <a href="#" data-section="groups">Groups</a>
+      <a href="#" data-section="bracket">Bracket</a>
+      <a href="#" data-section="predictor">Predict</a>
+      <a href="#" data-section="quiz">Quiz</a>
+      <a href="#" data-section="teams">Teams</a>
+      <a href="#" data-section="players">Stars</a>
+      <a href="#" data-section="venues">Venues</a>
+      <a href="#" data-section="stats">Stats</a>
+      <a href="#" data-section="about">About</a>
+    </div>
+    <div class="live-indicator" id="liveIndicator" aria-label="Live data status">
+      <span class="live-dot"></span>
+      <span class="live-text" id="liveText">Live</span>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<button class="theme-toggle" id="themeToggle" aria-label="Customize theme" title="Customize theme">🎨</button>
+<div class="theme-panel" id="themePanel">
+  <div class="theme-panel-header">Team Themes</div>
+  <div class="theme-panel-flags" id="themeFlags">
+    <button class="theme-flag active" data-theme="gold" title="Gold (Default)"><span class="tflag">🏆</span><span class="tflag-label">FIFA</span></button>
+    <button class="theme-flag" data-theme="argentina" title="Argentina"><span class="tflag">🇦🇷</span><span class="tflag-label">ARG</span></button>
+    <button class="theme-flag" data-theme="brazil" title="Brazil"><span class="tflag">🇧🇷</span><span class="tflag-label">BRA</span></button>
+    <button class="theme-flag" data-theme="france" title="France"><span class="tflag">🇫🇷</span><span class="tflag-label">FRA</span></button>
+    <button class="theme-flag" data-theme="germany" title="Germany"><span class="tflag">🇩🇪</span><span class="tflag-label">GER</span></button>
+    <button class="theme-flag" data-theme="england" title="England"><span class="tflag">🏴󠁧󠁢󠁥󠁮󠁧󠁿</span><span class="tflag-label">ENG</span></button>
+    <button class="theme-flag" data-theme="spain" title="Spain"><span class="tflag">🇪🇸</span><span class="tflag-label">ESP</span></button>
+    <button class="theme-flag" data-theme="netherlands" title="Netherlands"><span class="tflag">🇳🇱</span><span class="tflag-label">NED</span></button>
+    <button class="theme-flag" data-theme="portugal" title="Portugal"><span class="tflag">🇵🇹</span><span class="tflag-label">POR</span></button>
+    <button class="theme-flag" data-theme="italy" title="Italy"><span class="tflag">🇮🇹</span><span class="tflag-label">ITA</span></button>
+    <button class="theme-flag" data-theme="mexico" title="Mexico"><span class="tflag">🇲🇽</span><span class="tflag-label">MEX</span></button>
+    <button class="theme-flag" data-theme="usa" title="USA"><span class="tflag">🇺🇸</span><span class="tflag-label">USA</span></button>
+    <button class="theme-flag" data-theme="uruguay" title="Uruguay"><span class="tflag">🇺🇾</span><span class="tflag-label">URU</span></button>
+    <button class="theme-flag" data-theme="belgium" title="Belgium"><span class="tflag">🇧🇪</span><span class="tflag-label">BEL</span></button>
+    <button class="theme-flag" data-theme="croatia" title="Croatia"><span class="tflag">🇭🇷</span><span class="tflag-label">CRO</span></button>
+    <button class="theme-flag" data-theme="japan" title="Japan"><span class="tflag">🇯🇵</span><span class="tflag-label">JPN</span></button>
+    <button class="theme-flag" data-theme="morocco" title="Morocco"><span class="tflag">🇲🇦</span><span class="tflag-label">MAR</span></button>
+  </div>
+  <div class="theme-panel-header" style="margin-top:8px">Accent Colors</div>
+  <div class="theme-panel-colors" id="themeColors">
+    <button class="theme-swatch" data-theme="gold" style="background:#FFD700" title="Gold (Default)"></button>
+    <button class="theme-swatch" data-theme="blue" style="background:#4361EE" title="Electric Blue"></button>
+    <button class="theme-swatch" data-theme="green" style="background:#2ECC71" title="Emerald"></button>
+    <button class="theme-swatch" data-theme="red" style="background:#E63946" title="Ruby Red"></button>
+    <button class="theme-swatch" data-theme="purple" style="background:#9B59B6" title="Royal Purple"></button>
+    <button class="theme-swatch" data-theme="orange" style="background:#E67E22" title="Flame Orange"></button>
+    <button class="theme-swatch" data-theme="pink" style="background:#FF6B9D" title="Neon Pink"></button>
+    <button class="theme-swatch" data-theme="cyan" style="background:#00D4FF" title="Cyan Wave"></button>
+  </div>
+  <div class="theme-panel-row">
+    <span>Sound</span>
+    <button class="sound-toggle" id="soundToggle" title="Toggle stadium atmosphere">🔇</button>
+  </div>
+</div>
+
+<!-- Back to Top -->
+<button class="back-to-top" id="backToTop" aria-label="Back to top" title="Back to top">↑</button>
+
+<main>
+
+  <!-- HERO -->
+  <section class="section active" id="hero" aria-label="Home">
+    <div class="hero-bg"></div>
+    <div class="hero-parallax" aria-hidden="true">
+      <div class="hero-parallax-layer stadium" id="parallaxStadium"></div>
+    </div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-badge">⚽ 2026 EDITION</div>
+      <h1 class="hero-title" id="heroTitle">FIFA WORLD<span class="gold"> CUP</span></h1>
+      <p class="hero-subtitle">UNITED STATES · CANADA · MEXICO</p>
+      <p class="hero-dates">June 11 — July 19</p>
+      <div class="hero-countdown-wrap">
+        <div class="countdown" id="countdown">
+          <div class="count-item"><span id="cd-days">00</span><label>Days</label></div>
+          <div class="count-item"><span id="cd-hours">00</span><label>Hours</label></div>
+          <div class="count-item"><span id="cd-mins">00</span><label>Mins</label></div>
+          <div class="count-item"><span id="cd-secs">00</span><label>Secs</label></div>
+        </div>
+        <div class="countdown-label">UNTIL KICKOFF</div>
+      </div>
+      <div class="hero-match-day" id="heroMatchDay"></div>
+      <div class="hero-stats-bar">
+        <div class="hero-stat"><span class="hero-stat-num">48</span> Teams</div>
+        <div class="hero-stat"><span class="hero-stat-num">104</span> Matches</div>
+        <div class="hero-stat"><span class="hero-stat-num">16</span> Stadiums</div>
+        <div class="hero-stat"><span class="hero-stat-num">3</span> Nations</div>
+      </div>
+      <div class="hero-actions">
+        <a href="#" class="btn btn-primary" data-section="fixtures"><span>Explore Fixtures</span> →</a>
+        <a href="#" class="btn btn-secondary" data-section="groups">View Groups</a>
+      </div>
+    </div>
+    <div class="hero-ticker" id="heroTicker">
+      <div class="ticker-track" id="tickerTrack"></div>
+    </div>
+  </section>
+
+  <!-- FIXTURES -->
+  <section class="section" id="fixtures" aria-label="Fixtures and Schedule">
+    <div class="section-header">
+      <h2 class="section-title">Fixtures & Schedule</h2>
+      <p class="section-desc">All 104 matches — filter by round, group, or team</p>
+    </div>
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="group">Group Stage</button>
+      <button class="filter-btn" data-filter="R32">Round of 32</button>
+      <button class="filter-btn" data-filter="R16">Round of 16</button>
+      <button class="filter-btn" data-filter="QF">Quarterfinals</button>
+      <button class="filter-btn" data-filter="SF">Semifinals</button>
+      <button class="filter-btn" data-filter="F">Final</button>
+      <input type="text" class="filter-search" id="fixtureSearch" placeholder="Search team or venue..." aria-label="Search fixtures">
+    </div>
+    <div class="fixtures-container" id="fixturesContainer"></div>
+  </section>
+
+  <!-- GROUPS -->
+  <section class="section" id="groups" aria-label="Group Stage">
+    <div class="section-header">
+      <h2 class="section-title">Group Stage</h2>
+      <p class="section-desc">Points tables · Top 2 qualify · Best 8 third-placed teams advance</p>
+    </div>
+    <div class="group-grid" id="groupGrid"></div>
+  </section>
+
+  <!-- BRACKET -->
+  <section class="section" id="bracket" aria-label="Knockout Bracket">
+    <div class="section-header">
+      <h2 class="section-title">Knockout Bracket</h2>
+      <p class="section-desc">Round of 32 → Final · July 19, MetLife Stadium</p>
+    </div>
+    <svg style="position:absolute;width:0;height:0" aria-hidden="true"><defs><filter id="neonGlow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs></svg>
+    <div class="bracket-wrapper" id="bracketWrapper" data-lenis-prevent></div>
+  </section>
+
+  <!-- PREDICTOR -->
+  <section class="section" id="predictor" aria-label="Match Predictor">
+    <div class="section-header">
+      <h2 class="section-title">Match Predictor</h2>
+      <p class="section-desc">Pick winners for every group stage match · Track your accuracy</p>
+    </div>
+    <div class="pred-stats" id="predStats">
+      <div class="pred-stat"><span class="pred-stat-num" id="predTotal">0</span>Predicted</div>
+      <div class="pred-stat"><span class="pred-stat-num" id="predCorrect">0</span>Correct</div>
+      <div class="pred-stat"><span class="pred-stat-num" id="predPct">0%</span>Accuracy</div>
+    </div>
+    <div class="pred-controls">
+      <button class="btn btn-secondary" id="predReset">Reset All Picks</button>
+    </div>
+    <div class="pred-grid" id="predGrid"></div>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="section" id="quiz" aria-label="Tournament Quiz">
+    <div class="section-header">
+      <h2 class="section-title">Tournament Quiz</h2>
+      <p class="section-desc">10 questions · 30 seconds each · Test your World Cup knowledge</p>
+    </div>
+    <div class="quiz-card" id="quizCard">
+      <div class="quiz-progress" id="quizProgress">
+        <div class="quiz-progress-bar" id="quizProgressBar"></div>
+      </div>
+      <div class="quiz-timer" id="quizTimer">⏱ 30</div>
+      <div class="quiz-question" id="quizQuestion">Press Start to begin</div>
+      <div class="quiz-options" id="quizOptions"></div>
+      <div class="quiz-result" id="quizResult"></div>
+      <div class="quiz-controls">
+        <button class="btn btn-primary" id="quizStart">Start Quiz</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEAMS -->
+  <section class="section" id="teams" aria-label="Teams">
+    <div class="section-header">
+      <h2 class="section-title">Teams</h2>
+      <p class="section-desc">48 nations · 6 confederations · 4 debutants</p>
+    </div>
+    <div class="team-controls">
+      <input type="text" class="filter-search" id="teamSearch" placeholder="Search teams..." aria-label="Search teams">
+      <div class="filter-bar" id="confFilter">
+        <button class="filter-btn active" data-conf="all">All</button>
+        <button class="filter-btn" data-conf="UEFA">UEFA</button>
+        <button class="filter-btn" data-conf="CONMEBOL">CONMEBOL</button>
+        <button class="filter-btn" data-conf="AFC">AFC</button>
+        <button class="filter-btn" data-conf="CAF">CAF</button>
+        <button class="filter-btn" data-conf="CONCACAF">CONCACAF</button>
+        <button class="filter-btn" data-conf="OFC">OFC</button>
+      </div>
+    </div>
+    <div class="team-grid" id="teamGrid"></div>
+    <div class="compare-section">
+      <div class="section-header" style="margin-bottom:24px">
+        <h2 class="section-title" style="font-size:clamp(1.5rem,3vw,2.2rem)">Team Comparison</h2>
+        <p class="section-desc">Select any two teams to compare head-to-head</p>
+      </div>
+      <div class="compare-selects">
+        <select class="compare-select" id="compareA" aria-label="First team"></select>
+        <span class="compare-vs">VS</span>
+        <select class="compare-select" id="compareB" aria-label="Second team"></select>
+      </div>
+      <div class="compare-grid" id="compareGrid"></div>
+    </div>
+  </section>
+
+  <!-- PLAYERS -->
+  <section class="section" id="players" aria-label="Star Players">
+    <div class="section-header">
+      <h2 class="section-title">Star Players</h2>
+      <p class="section-desc">Top talents to watch at FIFA World Cup 2026</p>
+    </div>
+    <div class="player-grid" id="playerGrid"></div>
+  </section>
+
+  <!-- NEWS -->
+  <section class="section" id="news" aria-label="World Cup News">
+    <div class="section-header">
+      <h2 class="section-title">World Cup News</h2>
+      <p class="section-desc">Latest headlines from around the tournament</p>
+    </div>
+    <div class="news-grid" id="newsGrid">
+      <div class="news-loading"><div class="loader"></div><span>Loading latest news...</span></div>
+    </div>
+  </section>
+
+  <!-- VENUES -->
+  <section class="section" id="venues" aria-label="Stadiums and Venues">
+    <div class="section-header">
+      <h2 class="section-title">Stadiums & Venues</h2>
+      <p class="section-desc">16 world-class venues across three nations</p>
+    </div>
+    <div class="venue-controls">
+      <div class="filter-bar" id="countryFilter">
+        <button class="filter-btn active" data-country="all">All</button>
+        <button class="filter-btn" data-country="USA">🇺🇸 USA (11)</button>
+        <button class="filter-btn" data-country="Canada">🇨🇦 Canada (2)</button>
+        <button class="filter-btn" data-country="Mexico">🇲🇽 Mexico (3)</button>
+      </div>
+    </div>
+    <div class="venue-grid" id="venueGrid"></div>
+  </section>
+
+  <!-- STATS -->
+  <section class="section" id="stats" aria-label="Tournament Statistics">
+    <div class="section-header">
+      <h2 class="section-title">Tournament Statistics</h2>
+      <p class="section-desc">Data, charts & insights</p>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card chart-card">
+        <h3 class="chart-title">Confederation Representation</h3>
+        <div class="chart-container"><canvas id="confChart"></canvas></div>
+      </div>
+      <div class="stat-card chart-card">
+        <h3 class="chart-title">Goals per Group</h3>
+        <div class="chart-container"><canvas id="goalsChart"></canvas></div>
+      </div>
+      <div class="stat-card chart-card">
+        <h3 class="chart-title">Stadium Capacities</h3>
+        <div class="chart-container"><canvas id="capacityChart"></canvas></div>
+      </div>
+      <div class="stat-card chart-card">
+        <h3 class="chart-title">FIFA Rankings Distribution</h3>
+        <div class="chart-container"><canvas id="rankingChart"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="section" id="about" aria-label="About the Tournament">
+    <div class="section-header">
+      <h2 class="section-title">About the Tournament</h2>
+      <p class="section-desc">Everything you need to know about FIFA World Cup 2026</p>
+    </div>
+    <div class="about-content">
+      <div class="about-card">
+        <h3>📋 Format</h3>
+        <ul>
+          <li><strong>48 teams</strong> · 12 groups of 4 · 104 total matches</li>
+          <li>Group stage: June 11–27 — each team plays 3 matches</li>
+          <li>Top 2 from each group + 8 best 3rd-place teams → 32 advance</li>
+          <li>Round of 32 → Round of 16 → Quarterfinals → Semifinals → Final</li>
+          <li>Two separate bracket pathways keep Spain & Argentina in opposite halves</li>
+        </ul>
+      </div>
+      <div class="about-card">
+        <h3>🏟️ Host Nations</h3>
+        <ul>
+          <li><strong>🇺🇸 United States</strong> — 11 venues across the country</li>
+          <li><strong>🇨🇦 Canada</strong> — 2 venues: Toronto & Vancouver</li>
+          <li><strong>🇲🇽 Mexico</strong> — 3 venues: Mexico City, Zapopan, Monterrey</li>
+          <li>Final: <strong>MetLife Stadium</strong>, East Rutherford, New Jersey · July 19</li>
+          <li>Opening match: <strong>Mexico vs South Africa</strong> · Estadio Azteca · June 11</li>
+        </ul>
+      </div>
+      <div class="about-card">
+        <h3>🌟 Tournament Facts</h3>
+        <ul>
+          <li>First 48-team World Cup in history</li>
+          <li>4 debutants: <strong>Cape Verde</strong>, <strong>Curaçao</strong>, <strong>Jordan</strong>, <strong>Uzbekistan</strong></li>
+          <li>Defending champions: 🇦🇷 Argentina (2022 winners)</li>
+          <li>Most titles: 🇧🇷 Brazil (5)</li>
+          <li>Hosted across <strong>16 stadiums</strong> in 3 countries</li>
+        </ul>
+      </div>
+      <div class="about-card">
+        <h3>🏆 Trophy</h3>
+        <p>The FIFA World Cup Trophy stands 36.8 cm tall, weighs 6.175 kg, and is made of 18-carat gold. It will be awarded to the 2026 champions at MetLife Stadium on July 19.</p>
+      </div>
+      <div class="about-card trivia-card" style="grid-column:1/-1">
+        <h3>🧠 World Cup Trivia</h3>
+        <div class="trivia-container" id="triviaContainer">
+          <div class="trivia-question" id="triviaQuestion">Loading trivia...</div>
+          <button class="btn btn-secondary trivia-reveal" id="triviaReveal">Reveal Answer</button>
+          <div class="trivia-answer" id="triviaAnswer"></div>
+          <div class="trivia-hint" id="triviaHint"></div>
+          <div class="trivia-nav">
+            <button class="trivia-nav-btn" id="triviaPrev" aria-label="Previous trivia">◀ Prev</button>
+            <span class="trivia-counter" id="triviaCounter">1 / 10</span>
+            <button class="trivia-nav-btn" id="triviaNext" aria-label="Next trivia">Next ▶</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer" role="contentinfo">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="logo-icon">⚽</span>
+      <span class="logo-text">FIFA<span class="gold">2026</span></span>
+    </div>
+    <p class="footer-text">Not affiliated with FIFA. Built for fans.</p>
+    <p class="footer-credit">Sources: FIFA.com · ESPN · BBC Sport</p>
+    <p class="footer-updated" id="footerUpdated">Last updated: —</p>
+  </div>
+</footer>
+
+<div class="broadcast-bottom" id="broadcastBottom">
+  <div class="bb-track" id="bbTrack"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
