@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (backToTop) {
     backToTop.addEventListener('click', () => {
       if (lenis) lenis.scrollTo(0, { duration: 1.0 });
-      else window.scrollTo({ top: 0, behavior: 'smooth' });
+      else window.scrollTo({ top: 0 });
     });
   }
   updateBackToTop();
@@ -286,8 +286,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const savedTheme = localStorage.getItem('fifa2026_theme');
   if (savedTheme) setTheme(savedTheme);
 
-  themeToggle.addEventListener('click', (e) => { e.stopPropagation(); themePanel.classList.toggle('open'); });
-  document.addEventListener('click', (e) => { if (!themePanel.contains(e.target) && e.target !== themeToggle) themePanel.classList.remove('open'); });
+  themeToggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = themePanel.classList.toggle('open');
+    themeToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    themePanel.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+  });
+  document.addEventListener('click', (e) => {
+    if (!themePanel.contains(e.target) && e.target !== themeToggle) {
+      themePanel.classList.remove('open');
+      themeToggle.setAttribute('aria-expanded', 'false');
+      themePanel.setAttribute('aria-hidden', 'true');
+    }
+  });
   themeSwatches.forEach(sw => sw.addEventListener('click', () => setTheme(sw.dataset.theme)));
   themeFlags.forEach(f => f.addEventListener('click', () => setTheme(f.dataset.theme)));
 
@@ -703,10 +714,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (id === 'bracket') { setTimeout(buildBracket, 100); setTimeout(restoreBracketPicksUI, 300); }
       if (id === 'stats' && typeof Chart !== 'undefined') setTimeout(initCharts, 100);
     }
-    navLinks.forEach(a => a.classList.toggle('active', a.dataset.section === id));
+    navLinks.forEach(a => { a.classList.toggle('active', a.dataset.section === id); if (a.dataset.section === id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
     closeMobileMenu();
     if (lenis) lenis.scrollTo(0, { immediate: true });
-    else window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   document.querySelectorAll('[data-section]').forEach(el => {
@@ -737,6 +747,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const shortcuts = { '1': 'hero', '2': 'fixtures', '3': 'groups', '4': 'bracket', '5': 'predictor', '6': 'quiz', '7': 'teams', '8': 'players', '9': 'venues', '0': 'stats' };
       const id = shortcuts[e.key];
       if (id && document.getElementById(id)) { e.preventDefault(); showSection(id); }
+    }
+    if (e.altKey && e.key === 't' && !e.ctrlKey && !e.metaKey) {
+      e.preventDefault();
+      themeToggle.click();
     }
   });
 
@@ -845,8 +859,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.querySelectorAll('#filterBar .filter-btn[data-filter]').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('#filterBar .filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('#filterBar .filter-btn[data-filter]').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-checked', 'false'); });
       btn.classList.add('active');
+      btn.setAttribute('aria-checked', 'true');
       renderFixtures(btn.dataset.filter, document.getElementById('fixtureSearch')?.value || '');
     });
   });
@@ -935,7 +950,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const cy = matchCenter(ri, m);
             const topSlot = m * Math.pow(2, ri + 1) + Math.pow(2, ri) - 1;
             const t0y = slotY(topSlot);
-            h += `<div class="bm" style="top:${t0y}px;height:${ROW * 2}px" data-round="${ri}" data-match="${m}"><div class="bm-team">TBD</div><div class="bm-team bm-bottom">TBD</div><div class="bm-num">#${m+1}</div>`;
+            h += `<div class="bm" style="top:${t0y}px;height:${ROW * 2}px" data-round="${ri}" data-match="${m}"><div class="bm-team" tabindex="0" role="button">TBD</div><div class="bm-team bm-bottom" tabindex="0" role="button">TBD</div><div class="bm-num">#${m+1}</div>`;
             if (ri < roundData.length - 1 && m % 2 === 0) {
               const bmcy = matchCenter(ri, m + 1);
               const nextCY = matchCenter(ri + 1, Math.floor(m / 2));
@@ -962,9 +977,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initCardTilt, 400);
   }
 
-  document.addEventListener('click', (e) => {
-    const slot = e.target.closest('.bm-team');
-    if (!slot) return;
+  function toggleBracketSlot(slot) {
     const bm = slot.closest('.bm'); if (!bm) return;
     const r = parseInt(bm.dataset.round), m = parseInt(bm.dataset.match);
     const bot = slot.classList.contains('bm-bottom');
@@ -980,6 +993,21 @@ document.addEventListener('DOMContentLoaded', () => {
       slot.classList.add('picked');
     }
     saveBracketPicks();
+  }
+
+  document.addEventListener('click', (e) => {
+    const slot = e.target.closest('.bm-team');
+    if (!slot) return;
+    toggleBracketSlot(slot);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    const slot = e.target.closest('.bm-team');
+    if (!slot) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleBracketSlot(slot);
+    }
   });
 
   // ══════════════════════════════════════════════════════════
@@ -998,14 +1026,17 @@ document.addEventListener('DOMContentLoaded', () => {
       html += `<div class="team-card" style="animation-delay:${(i%12)*40}ms"><div class="team-card-flag">${getFlagLarge(t.name)}</div><div class="team-card-name">${t.name}</div><div class="team-card-group">Group ${t.group} · ${t.confederation}</div><div class="team-card-rank">FIFA #${t.fifaRank}</div><div class="team-card-conf" style="background:${confColor}12;color:${confColor};border:1px solid ${confColor}25">${t.confederation}</div>${t.debut ? '<div class="team-card-debut">★ Debutant</div>' : ''}${t.isHost ? '<div class="team-card-debut" style="color:var(--accent)">🏠 Host Nation</div>' : ''}<div class="team-card-best">${t.previousBest || ''}</div></div>`;
     });
     grid.innerHTML = html || '<div class="empty-state">No teams match your filter.</div>';
+    const statusEl = document.getElementById('teamSearchStatus');
+    if (statusEl) statusEl.textContent = search ? `${filtered.length} team${filtered.length !== 1 ? 's' : ''} found` : '';
     // Re-init tilt for new cards
     setTimeout(initCardTilt, 100);
   }
 
   document.querySelectorAll('#confFilter .filter-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('#confFilter .filter-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('#confFilter .filter-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-checked', 'false'); });
       btn.classList.add('active');
+      btn.setAttribute('aria-checked', 'true');
       renderTeams(btn.dataset.conf, document.getElementById('teamSearch')?.value || '');
     });
   });
@@ -1050,7 +1081,7 @@ document.addEventListener('DOMContentLoaded', () => {
     populate();
     function render() {
       const a = getTeam(selA.value), b = getTeam(selB.value);
-      if (!a||!b) { grid.innerHTML=''; return; }
+      if (!a||!b) { grid.innerHTML='<div class="compare-empty">Select two teams above to compare them side by side</div>'; return; }
       localStorage.setItem('fifa2026_compare', JSON.stringify([a.name,b.name]));
       const stats = [
         {label:'FIFA Rank',va:a.fifaRank,vb:b.fifaRank,lower:true},{label:'Group',va:a.group,vb:b.group},
@@ -1171,7 +1202,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function showQuestion() {
       const q = quizData[state.idx];
       qEl.textContent = q.q;
-      optEl.innerHTML = q.opts.map((o, i) => `<div class="quiz-option" data-idx="${i}">${o}</div>`).join('');
+      optEl.innerHTML = q.opts.map((o, i) => `<div class="quiz-option" data-idx="${i}" tabindex="0" role="button">${o}</div>`).join('');
       resultEl.textContent = '';
       progressBar.style.width = `${((state.idx + 1) / quizData.length) * 100}%`;
       state.timer = 30;
@@ -1181,6 +1212,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       optEl.querySelectorAll('.quiz-option').forEach(el => {
         el.addEventListener('click', () => handleAnswer(parseInt(el.dataset.idx)));
+        el.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleAnswer(parseInt(el.dataset.idx)); }
+        });
       });
 
       if (state.timerId) clearInterval(state.timerId);
@@ -1330,7 +1364,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let chartsInited = false;
   function initCharts() {
-    if (chartsInited || typeof Chart === 'undefined') return;
+    if (chartsInited) return;
+    if (typeof Chart === 'undefined') {
+      document.querySelectorAll('.chart-container').forEach(el => { if (!el.querySelector('.chart-fallback')) { const fb = document.createElement('div'); fb.className = 'chart-fallback'; fb.textContent = 'Chart library not loaded'; el.appendChild(fb); } });
+      return;
+    }
     chartsInited = true;
     Chart.defaults.color = '#8892A8';
     Chart.defaults.font.family = "'DM Sans', sans-serif";
@@ -1449,17 +1487,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     };
     setTimeout(tryDiscover, 10000);
-  }
-
-  // ══════════════════════════════════════════════════════════
-  //  INTERSECTION OBSERVER — Scroll-Triggered Animations
-  // ══════════════════════════════════════════════════════════
-
-  if ('IntersectionObserver' in window) {
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach(e => { if (e.isIntersecting) e.target.style.animationPlayState = 'running'; });
-    }, { threshold: 0.05 });
-    document.querySelectorAll('.match-card, .team-card, .venue-card, .group-card, .about-card, .news-item, .player-card').forEach(el => obs.observe(el));
   }
 
   // ══════════════════════════════════════════════════════════
@@ -1633,19 +1660,367 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   initFormationViewer();
 
-  // Stream Status (simulated for the Watch section)
-  function initStreamStatus() {
-    const streamStatus = document.getElementById('streamStatus');
-    if (!streamStatus) return;
-    // In future: ping your Tailscale US node to check if stream relay is up
-    // For now: check every 30s
-    setInterval(() => {
-      const randomOnline = Math.random() > 0.7; // Simulated
-      streamStatus.textContent = randomOnline ? 'Online' : 'Offline';
-      streamStatus.className = `stream-status ${randomOnline ? 'online' : 'offline'}`;
-    }, 30000);
+  // ══════════════════════════════════════════════════════════
+  //  TAILSCALE STREAM ENGINE — Auto-Detect, Connect, Monitor
+  // ══════════════════════════════════════════════════════════
+
+  const TS_CONFIG = {
+    // Tailscale magic DNS / local API
+    tsApiBase: 'http://100.100.100.100/localapi/v0',
+    // Default stream port on US node
+    streamPort: 8080,
+    // Saved US node IP
+    usNodeKey: 'fifa2026_ts_us_node',
+    // Poll interval for stream health
+    healthInterval: 5000
+  };
+
+  let tsState = {
+    running: false,
+    selfIP: null,
+    selfName: null,
+    usNodeIP: localStorage.getItem(TS_CONFIG.usNodeKey) || '',
+    peers: [],
+    streamConnected: false,
+    streamUrl: '',
+    latency: null,
+    healthCheckId: null
+  };
+
+  // ── Check if Tailscale is running via local API ──
+  async function checkTailscaleStatus() {
+    try {
+      const resp = await fetch(`${TS_CONFIG.tsApiBase}/status`, {
+        signal: AbortSignal.timeout(2000)
+      });
+      if (!resp.ok) return false;
+      const data = await resp.json();
+      tsState.running = true;
+      tsState.selfIP = data.Self?.TailscaleIPs?.[0] || null;
+      tsState.selfName = data.Self?.HostName || 'Unknown';
+      tsState.peers = Object.values(data.Peer || {}).filter(p => p.Online);
+      return true;
+    } catch {
+      tsState.running = false;
+      return false;
+    }
   }
-  initStreamStatus();
+
+  // ── Update all UI elements based on TS state ──
+  function updateTailscaleUI() {
+    const statusEl = document.getElementById('streamStatus');
+    const tsStatusVal = document.getElementById('tsStatusValue');
+    const inIP = document.getElementById('tsInIP');
+    const tsInput = document.getElementById('tsUsInput');
+
+    if (tsState.running) {
+      if (statusEl) { statusEl.textContent = 'Connected'; statusEl.className = 'stream-status online'; }
+      if (tsStatusVal) { tsStatusVal.textContent = 'Running'; tsStatusVal.className = 'stream-info-value connected'; }
+      if (inIP) inIP.textContent = tsState.selfIP || 'Connected';
+      document.getElementById('tsStep1')?.classList.add('completed');
+      document.getElementById('tsStep2')?.classList.add('completed');
+
+      if (tsState.peers.length > 0 && document.getElementById('tsStep2')) {
+        document.getElementById('tsStep2').classList.add('completed');
+      }
+    } else {
+      if (statusEl) { statusEl.textContent = 'Offline'; statusEl.className = 'stream-status offline'; }
+      if (tsStatusVal) { tsStatusVal.textContent = 'Not running'; tsStatusVal.className = 'stream-info-value disconnected'; }
+      if (inIP) inIP.textContent = '--';
+    }
+
+    // Restore saved US node IP
+    if (tsInput && tsState.usNodeIP) {
+      tsInput.value = tsState.usNodeIP;
+      document.getElementById('tsUsIP').textContent = tsState.usNodeIP;
+    }
+  }
+
+  // ── Update stream status in info bar ──
+  function updateStreamStateUI() {
+    const usNodeVal = document.getElementById('usNodeValue');
+    const latencyVal = document.getElementById('latencyValue');
+    const streamVal = document.getElementById('streamStateValue');
+
+    if (usNodeVal) {
+      usNodeVal.textContent = tsState.usNodeIP || '--';
+      usNodeVal.className = tsState.usNodeIP ? 'stream-info-value connected' : 'stream-info-value';
+    }
+    if (latencyVal) {
+      latencyVal.textContent = tsState.latency !== null ? `${tsState.latency} ms` : '-- ms';
+      if (tsState.latency !== null) {
+        latencyVal.className = tsState.latency < 100 ? 'stream-info-value connected' :
+                               tsState.latency < 300 ? 'stream-info-value checking' : 'stream-info-value disconnected';
+      }
+    }
+    if (streamVal) {
+      streamVal.textContent = tsState.streamConnected ? 'Connected' : 'Disconnected';
+      streamVal.className = tsState.streamConnected ? 'stream-info-value connected' : 'stream-info-value disconnected';
+    }
+  }
+
+  // ── Scan network for Tailscale peers ──
+  async function scanNetwork() {
+    const noteText = document.getElementById('tailscaleNoteText');
+    const noteEl = document.getElementById('tailscaleNote');
+    const usIPEl = document.getElementById('tsUsIP');
+    const tsInput = document.getElementById('tsUsInput');
+
+    if (!noteText) return;
+
+    noteText.innerHTML = '🔍 <strong>Scanning Tailscale network...</strong>';
+    if (noteEl) noteEl.style.borderColor = 'rgba(var(--accent-rgb),0.25)';
+
+    const running = await checkTailscaleStatus();
+
+    if (!running) {
+      noteText.innerHTML = '❌ <strong>Tailscale not running.</strong> Install it from <code>tailscale.com/download</code> and connect to your tailnet.';
+      if (noteEl) noteEl.style.borderColor = 'rgba(230,57,70,0.2)';
+      updateTailscaleUI();
+      updateStreamStateUI();
+      return;
+    }
+
+    updateTailscaleUI();
+    const peerCount = tsState.peers.length;
+    const peerList = tsState.peers.map(p =>
+      `${p.HostName} (${p.TailscaleIPs?.[0] || 'no IP'})`
+    ).join(', ');
+
+    if (peerCount === 0) {
+      noteText.innerHTML = `✅ <strong>You're connected</strong> (${tsState.selfName}) but no other nodes found. Make sure your US machine is online on the same tailnet.`;
+      if (noteEl) noteEl.style.borderColor = 'rgba(241,196,15,0.2)';
+    } else {
+      // Try to find likely US node (by hostname or IP pattern)
+      const usPeer = tsState.peers.find(p =>
+        p.HostName?.toLowerCase().includes('us') ||
+        p.HostName?.toLowerCase().includes('america') ||
+        p.HostName?.toLowerCase().includes('stream')
+      ) || tsState.peers[0];
+
+      const usIP = usPeer.TailscaleIPs?.[0] || '';
+      if (usIP) {
+        tsState.usNodeIP = usIP;
+        localStorage.setItem(TS_CONFIG.usNodeKey, usIP);
+        if (usIPEl) usIPEl.textContent = usIP;
+        if (tsInput) tsInput.value = usIP;
+        document.getElementById('tsStep3')?.classList.add('completed');
+      }
+
+      noteText.innerHTML = `✅ <strong>Found ${peerCount} peer(s)</strong> on your tailnet: ${peerList}. <br>US node set to: <code>${usPeer.HostName} (${usIP})</code>. Click <strong>Ping US Node</strong> to test.`;
+      if (noteEl) noteEl.style.borderColor = 'rgba(46,204,113,0.2)';
+    }
+
+    updateStreamStateUI();
+  }
+
+  // ── Ping US node for latency ──
+  async function pingUSNode() {
+    const noteText = document.getElementById('tailscaleNoteText');
+    const noteEl = document.getElementById('tailscaleNote');
+    const latencyVal = document.getElementById('latencyValue');
+    const tsInput = document.getElementById('tsUsInput');
+
+    // Get IP from input or saved state
+    const ip = tsInput?.value || tsState.usNodeIP;
+    if (!ip) {
+      if (noteText) noteText.innerHTML = '⚠️ <strong>No US node IP set.</strong> Click <strong>Scan Network</strong> first or enter the IP manually.';
+      return;
+    }
+
+    tsState.usNodeIP = ip;
+    localStorage.setItem(TS_CONFIG.usNodeKey, ip);
+    document.getElementById('tsUsIP').textContent = ip;
+    if (tsInput) tsInput.value = ip;
+
+    if (noteText) noteText.innerHTML = `📶 <strong>Pinging ${ip}...</strong>`;
+    if (latencyVal) { latencyVal.textContent = '...'; latencyVal.className = 'stream-info-value checking'; }
+
+    const start = performance.now();
+    let success = false;
+
+    try {
+      // Try to reach the stream endpoint on the US node
+      const resp = await fetch(`http://${ip}:${TS_CONFIG.streamPort}/`, {
+        signal: AbortSignal.timeout(3000)
+      });
+      success = resp.ok;
+    } catch {
+      // Try raw ping via img trick to measure latency
+      success = false;
+    }
+
+    const latency = Math.round(performance.now() - start);
+    tsState.latency = latency;
+
+    if (success) {
+      document.getElementById('tsStep4')?.classList.add('completed');
+      if (noteText) noteText.innerHTML = `✅ <strong>US node reachable!</strong> Latency: <strong>${latency}ms</strong>. Stream port ${TS_CONFIG.streamPort} is responding. Click <strong>Connect Stream</strong> to watch.`;
+      if (noteEl) noteEl.style.borderColor = 'rgba(46,204,113,0.2)';
+    } else {
+      if (noteText) noteText.innerHTML = `⚠️ <strong>Node pinged (${latency}ms)</strong> but port ${TS_CONFIG.streamPort} not responding. On your US machine, run:<br><code>python3 -m http.server ${TS_CONFIG.streamPort}</code> or set up a stream relay.`;
+      if (noteEl) noteEl.style.borderColor = 'rgba(241,196,15,0.2)';
+    }
+
+    updateStreamStateUI();
+  }
+
+  // ── Connect to stream ──
+  function connectStream() {
+    const ip = tsState.usNodeIP;
+    if (!ip) {
+      alert('No US node configured. Click "Scan Network" or enter the IP manually.');
+      return;
+    }
+
+    const streamUrl = `http://${ip}:${TS_CONFIG.streamPort}/`;
+
+    const placeholder = document.getElementById('streamPlaceholder');
+    const video = document.getElementById('streamVideo');
+    const playerWrap = document.getElementById('streamPlayerWrap');
+    const desc = document.getElementById('streamPlaceholderDesc');
+
+    // For HLS stream: use hls.js if available, otherwise try direct video
+    if (window.Hls && streamUrl.endsWith('.m3u8')) {
+      const hls = new Hls();
+      hls.loadSource(streamUrl);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+    } else {
+      video.src = streamUrl;
+      video.play().catch(() => {
+        // Autoplay blocked — show controls
+        video.controls = true;
+      });
+    }
+
+    if (placeholder) placeholder.style.display = 'none';
+    if (video) { video.style.display = 'block'; video.muted = false; }
+    if (playerWrap) playerWrap.classList.add('playing');
+    if (desc) desc.textContent = `Streaming from ${ip}:${TS_CONFIG.streamPort}`;
+
+    tsState.streamConnected = true;
+    updateStreamStateUI();
+
+    // Start health checks
+    startStreamHealthCheck();
+  }
+
+  function disconnectStream() {
+    const video = document.getElementById('streamVideo');
+    const placeholder = document.getElementById('streamPlaceholder');
+    const playerWrap = document.getElementById('streamPlayerWrap');
+
+    if (video) { video.pause(); video.src = ''; video.style.display = 'none'; }
+    if (placeholder) placeholder.style.display = '';
+    if (playerWrap) playerWrap.classList.remove('playing');
+
+    tsState.streamConnected = false;
+    stopStreamHealthCheck();
+    updateStreamStateUI();
+  }
+
+  function startStreamHealthCheck() {
+    stopStreamHealthCheck();
+    tsState.healthCheckId = setInterval(async () => {
+      if (!tsState.streamConnected || !tsState.usNodeIP) return;
+      try {
+        const start = performance.now();
+        const resp = await fetch(`http://${tsState.usNodeIP}:${TS_CONFIG.streamPort}/`, {
+          signal: AbortSignal.timeout(2000)
+        });
+        tsState.latency = Math.round(performance.now() - start);
+        if (!resp.ok && tsState.streamConnected) {
+          // Stream might be down — but keep showing
+        }
+        updateStreamStateUI();
+      } catch {
+        tsState.latency = null;
+        updateStreamStateUI();
+      }
+    }, TS_CONFIG.healthInterval);
+  }
+
+  function stopStreamHealthCheck() {
+    if (tsState.healthCheckId) {
+      clearInterval(tsState.healthCheckId);
+      tsState.healthCheckId = null;
+    }
+  }
+
+  // ── Auto-detect on Watch section load ──
+  let tsInitialized = false;
+  function initTailscaleEngine() {
+    if (tsInitialized) return;
+    tsInitialized = true;
+
+    // Buttons
+    document.getElementById('tsScanBtn')?.addEventListener('click', scanNetwork);
+    document.getElementById('tsPingBtn')?.addEventListener('click', pingUSNode);
+    document.getElementById('streamConnectBtn')?.addEventListener('click', connectStream);
+    document.getElementById('streamDisconnect')?.addEventListener('click', disconnectStream);
+    document.getElementById('streamRefresh')?.addEventListener('click', () => {
+      disconnectStream();
+      setTimeout(connectStream, 500);
+    });
+    document.getElementById('streamFullscreen')?.addEventListener('click', () => {
+      document.getElementById('streamVideo')?.requestFullscreen?.();
+    });
+
+    // IP input change
+    document.getElementById('tsUsInput')?.addEventListener('change', (e) => {
+      tsState.usNodeIP = e.target.value.trim();
+      localStorage.setItem(TS_CONFIG.usNodeKey, tsState.usNodeIP);
+      document.getElementById('tsUsIP').textContent = tsState.usNodeIP;
+    });
+
+    // Auto-scan when Watch section becomes active
+    const watchSection = document.getElementById('watch');
+    if (watchSection) {
+      const observer = new MutationObserver(() => {
+        if (watchSection.classList.contains('active')) {
+          setTimeout(scanNetwork, 500);
+          observer.disconnect();
+        }
+      });
+      observer.observe(watchSection, { attributes: true, attributeFilter: ['class'] });
+
+      // Also scan immediately if already active
+      if (watchSection.classList.contains('active')) {
+        setTimeout(scanNetwork, 500);
+      }
+    }
+
+    // Restore saved IP
+    if (tsState.usNodeIP) {
+      document.getElementById('tsUsIP').textContent = tsState.usNodeIP;
+      const input = document.getElementById('tsUsInput');
+      if (input) input.value = tsState.usNodeIP;
+      updateStreamStateUI();
+    }
+
+    updateTailscaleUI();
+  }
+
+  // Init when Watch section is viewed
+  const watchSectionEl = document.getElementById('watch');
+  if (watchSectionEl) {
+    const obs = new MutationObserver(() => {
+      if (watchSectionEl.classList.contains('active')) {
+        initTailscaleEngine();
+      }
+    });
+    obs.observe(watchSectionEl, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  // Also run on showSection for watch
+  const origShowSection = showSection;
+  showSection = function(id) {
+    origShowSection(id);
+    if (id === 'watch') {
+      setTimeout(initTailscaleEngine, 300);
+    }
+  };
 
   // ══════════════════════════════════════════════════════════
   //  INITIALIZATION

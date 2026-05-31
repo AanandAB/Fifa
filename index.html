@@ -24,7 +24,7 @@
 <body data-theme="gold">
 
 <!-- Skip Navigation -->
-<a href="#hero" class="skip-nav">Skip to Main Content</a>
+<a href="#main-content" class="skip-nav">Skip to Main Content</a>
 
 <!-- Scroll Progress Bar -->
 <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
@@ -37,7 +37,7 @@
     <span class="broadcast-live-dot" id="bLiveDot"></span>
     <span class="broadcast-live-label" id="bLiveLabel">OFFLINE</span>
   </div>
-  <div class="broadcast-center" id="broadcastCenter">USA · CANADA · MEXICO</div>
+  <div class="broadcast-center" id="broadcastCenter">USA · CANADA · MEXICO · <span class="broadcast-shortcuts">Alt+1-0</span></div>
   <div class="broadcast-right">
     <span class="broadcast-temp" id="broadcastTemp">🌡️ 72°F</span>
     <span class="broadcast-divider">|</span>
@@ -54,22 +54,22 @@
 <!-- Navbar -->
 <nav class="navbar" id="navbar" aria-label="Main navigation">
   <div class="nav-inner">
-    <a href="#" class="nav-logo" data-section="hero" aria-label="FIFA 2026 Home">
+    <a href="#" class="nav-logo" data-section="hero" aria-label="FIFA 2026 Home (Alt+1)" title="Home (Alt+1)">
       <span class="logo-icon">⚽</span>
       <span class="logo-text">FIFA<span class="gold">2026</span></span>
     </a>
     <div class="nav-links" id="navLinks" role="navigation">
-      <a href="#" data-section="fixtures">Fixtures</a>
-      <a href="#" data-section="groups">Groups</a>
-      <a href="#" data-section="bracket">Bracket</a>
-      <a href="#" data-section="predictor">Predict</a>
-      <a href="#" data-section="watch">📺 Watch</a>
-      <a href="#" data-section="quiz">Quiz</a>
-      <a href="#" data-section="teams">Teams</a>
-      <a href="#" data-section="players">Stars</a>
-      <a href="#" data-section="venues">Venues</a>
-      <a href="#" data-section="stats">Stats</a>
-      <a href="#" data-section="about">About</a>
+      <a href="#" data-section="fixtures" title="Fixtures (Alt+2)">Fixtures</a>
+      <a href="#" data-section="groups" title="Groups (Alt+3)">Groups</a>
+      <a href="#" data-section="bracket" title="Bracket (Alt+4)">Bracket</a>
+      <a href="#" data-section="predictor" title="Predictor (Alt+5)">Predict</a>
+      <a href="#" data-section="watch" title="Watch Live (Alt+6)">Watch</a>
+      <a href="#" data-section="quiz" title="Quiz (Alt+7)">Quiz</a>
+      <a href="#" data-section="teams" title="Teams (Alt+8)">Teams</a>
+      <a href="#" data-section="players" title="Players (Alt+9)">Stars</a>
+      <a href="#" data-section="venues" title="Venues (Alt+0)">Venues</a>
+      <a href="#" data-section="stats" title="Stats">Stats</a>
+      <a href="#" data-section="about" title="About">About</a>
     </div>
     <div class="live-indicator" id="liveIndicator" aria-label="Live data status">
       <span class="live-dot"></span>
@@ -81,8 +81,8 @@
   </div>
 </nav>
 
-<button class="theme-toggle" id="themeToggle" aria-label="Customize theme" title="Customize theme">🎨</button>
-<div class="theme-panel" id="themePanel">
+<button class="theme-toggle" id="themeToggle" aria-label="Customize theme" aria-expanded="false" aria-controls="themePanel" title="Customize theme (Alt+T)">🎨</button>
+<div class="theme-panel" id="themePanel" aria-hidden="true">
   <div class="theme-panel-header">Team Themes</div>
   <div class="theme-panel-flags" id="themeFlags">
     <button class="theme-flag active" data-theme="gold" title="Gold (Default)"><span class="tflag">🏆</span><span class="tflag-label">FIFA</span></button>
@@ -123,7 +123,7 @@
 <!-- Back to Top -->
 <button class="back-to-top" id="backToTop" aria-label="Back to top" title="Back to top">↑</button>
 
-<main>
+<main id="main-content">
 
   <!-- HERO -->
   <section class="section active" id="hero" aria-label="Home">
@@ -169,15 +169,15 @@
       <h2 class="section-title">Fixtures & Schedule</h2>
       <p class="section-desc">All 104 matches — filter by round, group, or team</p>
     </div>
-    <div class="filter-bar" id="filterBar">
-      <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="group">Group Stage</button>
-      <button class="filter-btn" data-filter="R32">Round of 32</button>
-      <button class="filter-btn" data-filter="R16">Round of 16</button>
-      <button class="filter-btn" data-filter="QF">Quarterfinals</button>
-      <button class="filter-btn" data-filter="SF">Semifinals</button>
-      <button class="filter-btn" data-filter="F">Final</button>
-      <input type="text" class="filter-search" id="fixtureSearch" placeholder="Search team or venue..." aria-label="Search fixtures">
+    <div class="filter-bar" id="filterBar" role="radiogroup" aria-label="Filter by match round">
+      <button class="filter-btn active" data-filter="all" role="radio" aria-checked="true">All</button>
+      <button class="filter-btn" data-filter="group" role="radio" aria-checked="false">Group Stage</button>
+      <button class="filter-btn" data-filter="R32" role="radio" aria-checked="false">Round of 32</button>
+      <button class="filter-btn" data-filter="R16" role="radio" aria-checked="false">Round of 16</button>
+      <button class="filter-btn" data-filter="QF" role="radio" aria-checked="false">Quarterfinals</button>
+      <button class="filter-btn" data-filter="SF" role="radio" aria-checked="false">Semifinals</button>
+      <button class="filter-btn" data-filter="F" role="radio" aria-checked="false">Final</button>
+      <input type="text" class="filter-search" id="fixtureSearch" placeholder="Search team or venue..." aria-label="Search fixtures" autocomplete="off">
     </div>
     <div class="fixtures-container" id="fixturesContainer"></div>
   </section>
@@ -245,15 +245,16 @@
       <p class="section-desc">48 nations · 6 confederations · 4 debutants</p>
     </div>
     <div class="team-controls">
-      <input type="text" class="filter-search" id="teamSearch" placeholder="Search teams..." aria-label="Search teams">
-      <div class="filter-bar" id="confFilter">
-        <button class="filter-btn active" data-conf="all">All</button>
-        <button class="filter-btn" data-conf="UEFA">UEFA</button>
-        <button class="filter-btn" data-conf="CONMEBOL">CONMEBOL</button>
-        <button class="filter-btn" data-conf="AFC">AFC</button>
-        <button class="filter-btn" data-conf="CAF">CAF</button>
-        <button class="filter-btn" data-conf="CONCACAF">CONCACAF</button>
-        <button class="filter-btn" data-conf="OFC">OFC</button>
+      <input type="text" class="filter-search" id="teamSearch" placeholder="Search teams..." aria-label="Search teams" autocomplete="off">
+      <div class="search-status" id="teamSearchStatus" aria-live="polite" aria-atomic="true"></div>
+      <div class="filter-bar" id="confFilter" role="radiogroup" aria-label="Filter by confederation">
+        <button class="filter-btn active" data-conf="all" role="radio" aria-checked="true">All</button>
+        <button class="filter-btn" data-conf="UEFA" role="radio" aria-checked="false">UEFA</button>
+        <button class="filter-btn" data-conf="CONMEBOL" role="radio" aria-checked="false">CONMEBOL</button>
+        <button class="filter-btn" data-conf="AFC" role="radio" aria-checked="false">AFC</button>
+        <button class="filter-btn" data-conf="CAF" role="radio" aria-checked="false">CAF</button>
+        <button class="filter-btn" data-conf="CONCACAF" role="radio" aria-checked="false">CONCACAF</button>
+        <button class="filter-btn" data-conf="OFC" role="radio" aria-checked="false">OFC</button>
       </div>
     </div>
     <div class="team-grid" id="teamGrid"></div>
@@ -340,7 +341,55 @@
       <h2 class="section-title">📺 Watch Live</h2>
       <p class="section-desc">Stream every match — US broadcasters + free streaming via Tailscale</p>
     </div>
+
+    <!-- Stream Player -->
+    <div class="stream-player-section">
+      <div class="stream-player-wrap" id="streamPlayerWrap">
+        <div class="stream-placeholder" id="streamPlaceholder">
+          <div class="stream-placeholder-icon">📡</div>
+          <div class="stream-placeholder-title">Stream Not Connected</div>
+          <div class="stream-placeholder-desc" id="streamPlaceholderDesc">Start Tailscale and connect your US node to begin streaming</div>
+          <button class="btn btn-primary" id="streamConnectBtn">🔗 Connect Stream</button>
+        </div>
+        <video id="streamVideo" class="stream-video" controls autoplay playsinline muted style="display:none"></video>
+        <div class="stream-controls" id="streamControls">
+          <div class="stream-control-left">
+            <span class="stream-live-badge" id="streamLiveBadge">
+              <span class="stream-live-dot"></span> LIVE
+            </span>
+            <span class="stream-bitrate" id="streamBitrate">-- Kbps</span>
+          </div>
+          <div class="stream-control-right">
+            <button class="stream-ctrl-btn" id="streamFullscreen" title="Fullscreen">⛶</button>
+            <button class="stream-ctrl-btn" id="streamRefresh" title="Refresh Stream">🔄</button>
+            <button class="stream-ctrl-btn" id="streamDisconnect" title="Disconnect">⏹</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stream Info Bar -->
+      <div class="stream-info-bar" id="streamInfoBar">
+        <div class="stream-info-item">
+          <span class="stream-info-label">Tailscale</span>
+          <span class="stream-info-value" id="tsStatusValue">Checking...</span>
+        </div>
+        <div class="stream-info-item">
+          <span class="stream-info-label">US Node</span>
+          <span class="stream-info-value" id="usNodeValue">--</span>
+        </div>
+        <div class="stream-info-item">
+          <span class="stream-info-label">Latency</span>
+          <span class="stream-info-value" id="latencyValue">-- ms</span>
+        </div>
+        <div class="stream-info-item">
+          <span class="stream-info-label">Stream</span>
+          <span class="stream-info-value" id="streamStateValue">Disconnected</span>
+        </div>
+      </div>
+    </div>
+
     <div class="watch-grid">
+      <!-- US Broadcasters -->
       <div class="watch-card broadcasters">
         <div class="watch-card-header">
           <span class="watch-icon">📡</span>
@@ -366,46 +415,54 @@
           </div>
         </div>
       </div>
-      <div class="watch-card tailscale">
+
+      <!-- Tailscale Controls -->
+      <div class="watch-card tailscale" id="tailscaleCard">
         <div class="watch-card-header">
           <span class="watch-icon">🔗</span>
-          <h3>Tailscale Stream Router</h3>
-          <span class="stream-status offline" id="streamStatus">Offline</span>
+          <h3>Tailscale Network</h3>
+          <span class="stream-status offline" id="streamStatus">Checking...</span>
         </div>
-        <p class="watch-desc">Route free US broadcast streams to India via your US-based Tailscale node</p>
         <div class="tailscale-diagram" id="tailscaleDiagram">
-          <div class="ts-node ts-us">
+          <div class="ts-node ts-us" id="tsUsNode">
             <span class="ts-flag">🇺🇸</span>
             <span class="ts-label">US Node</span>
-            <span class="ts-ip">TS IP: 100.x.x.x</span>
+            <span class="ts-ip" id="tsUsIP">--</span>
           </div>
           <div class="ts-arrow">⟶</div>
           <div class="ts-node ts-cloud">
             <span class="ts-icon">☁️</span>
-            <span class="ts-label">Tailscale Mesh</span>
-            <span class="ts-ip">Encrypted Tunnel</span>
+            <span class="ts-label">Tailscale</span>
+            <span class="ts-ip">WireGuard</span>
           </div>
           <div class="ts-arrow">⟶</div>
-          <div class="ts-node ts-in">
+          <div class="ts-node ts-in" id="tsInNode">
             <span class="ts-flag">🇮🇳</span>
-            <span class="ts-label">India Viewer</span>
-            <span class="ts-ip">Your Device</span>
+            <span class="ts-label">You</span>
+            <span class="ts-ip" id="tsInIP">--</span>
           </div>
         </div>
-        <div class="tailscale-steps">
-          <div class="ts-step"><span class="ts-step-num">1</span> Install Tailscale on your US server & local device</div>
-          <div class="ts-step"><span class="ts-step-num">2</span> Connect both to your Tailscale network (tailnet)</div>
-          <div class="ts-step"><span class="ts-step-num">3</span> On US node: set up nginx reverse proxy to Fox/Telemundo streams</div>
-          <div class="ts-step"><span class="ts-step-num">4</span> Access via your US node's Tailscale IP: <code>http://100.x.x.x:8080</code></div>
+        <div class="tailscale-actions">
+          <button class="btn btn-primary btn-sm" id="tsScanBtn">🔍 Scan Network</button>
+          <button class="btn btn-secondary btn-sm" id="tsPingBtn">📶 Ping US Node</button>
+          <input type="text" class="ts-ip-input" id="tsUsInput" placeholder="US Node TS IP (100.x.x.x)" value="">
         </div>
-        <div class="tailscale-note">
-          <span>⚠️</span> This routes your personal free-to-air US broadcast through your own Tailscale network. No piracy — you're accessing legally free OTA broadcasts from your US location.
+        <div class="tailscale-steps">
+          <div class="ts-step active" id="tsStep1"><span class="ts-step-num">1</span><span class="ts-step-text">Install Tailscale on both machines</span><span class="ts-step-check">✓</span></div>
+          <div class="ts-step" id="tsStep2"><span class="ts-step-num">2</span><span class="ts-step-text">Both connected to same tailnet</span><span class="ts-step-check">✓</span></div>
+          <div class="ts-step" id="tsStep3"><span class="ts-step-num">3</span><span class="ts-step-text">US node streaming on port <code>:8080</code></span><span class="ts-step-check">✓</span></div>
+          <div class="ts-step" id="tsStep4"><span class="ts-step-num">4</span><span class="ts-step-text">Stream accessible via Tailscale IP</span><span class="ts-step-check">✓</span></div>
+        </div>
+        <div class="tailscale-note" id="tailscaleNote">
+          <span>💡</span> <span id="tailscaleNoteText">Click <strong>Scan Network</strong> to auto-detect your Tailscale setup and US streaming node.</span>
         </div>
       </div>
-      <div class="watch-card schedule">
+
+      <!-- Broadcast Schedule -->
+      <div class="watch-card schedule" style="grid-column: 1 / -1;">
         <div class="watch-card-header">
           <span class="watch-icon">📅</span>
-          <h3>Today's Broadcasts</h3>
+          <h3>Upcoming Broadcasts</h3>
         </div>
         <div class="watch-schedule" id="watchSchedule">
           <div class="watch-match">
@@ -421,6 +478,16 @@
           <div class="watch-match">
             <div class="wmatch-teams"><span class="flag-emoji">🇧🇷</span> Brazil vs Morocco <span class="flag-emoji">🇲🇦</span></div>
             <div class="wmatch-info">June 13 · TBD · Fox Sports</div>
+            <span class="wmatch-badge cable">CABLE</span>
+          </div>
+          <div class="watch-match">
+            <div class="wmatch-teams"><span class="flag-emoji">🇦🇷</span> Argentina vs Algeria <span class="flag-emoji">🇩🇿</span></div>
+            <div class="wmatch-info">June 16 · TBD · Fox</div>
+            <span class="wmatch-badge free">FREE OTA</span>
+          </div>
+          <div class="watch-match">
+            <div class="wmatch-teams"><span class="flag-emoji">🇫🇷</span> France vs Senegal <span class="flag-emoji">🇸🇳</span></div>
+            <div class="wmatch-info">June 16 · TBD · Fox Sports</div>
             <span class="wmatch-badge cable">CABLE</span>
           </div>
         </div>
