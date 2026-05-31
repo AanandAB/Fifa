@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FIFA 2026 — Cloudflare Tunnel & Monetization Guide</title>
+<style>
+  @page { size: A4; margin: 20mm; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; font-size: 11pt; line-height: 1.7; color: #1a1a1a; max-width: 800px; margin: 0 auto; padding: 20px; }
+  h1 { font-size: 24pt; color: #080c18; border-bottom: 3px solid #FFD700; padding-bottom: 8px; margin-top: 0; }
+  h2 { font-size: 16pt; color: #1a1a1a; border-bottom: 2px solid #4361EE; padding-bottom: 4px; margin-top: 28px; page-break-after: avoid; }
+  h3 { font-size: 13pt; color: #333; margin-top: 20px; }
+  .meta { color: #666; font-size: 10pt; margin-bottom: 24px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 10pt; page-break-inside: avoid; }
+  th { background: #080c18; color: #FFD700; padding: 8px 10px; text-align: left; font-size: 9pt; text-transform: uppercase; letter-spacing: 0.5px; }
+  td { padding: 7px 10px; border-bottom: 1px solid #e0e0e0; }
+  tr:nth-child(even) { background: #f8f8f8; }
+  code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-family: 'Cascadia Code', 'Consolas', monospace; font-size: 9.5pt; }
+  pre { background: #f5f5f5; border: 1px solid #ddd; border-left: 4px solid #4361EE; padding: 12px 14px; border-radius: 4px; font-size: 9pt; overflow-x: auto; line-height: 1.5; page-break-inside: avoid; }
+  .highlight { background: #FFF9C4; padding: 2px 4px; border-radius: 2px; }
+  .box { background: #f0f4ff; border: 1px solid #4361EE; border-radius: 6px; padding: 14px 18px; margin: 14px 0; page-break-inside: avoid; }
+  .box-green { background: #e8f5e9; border-color: #2ECC71; }
+  .box-yellow { background: #fff8e1; border-color: #FFD700; }
+  ul, ol { padding-left: 22px; }
+  li { margin: 4px 0; }
+  .arch { text-align: center; background: #080c18; color: #e0e0e0; padding: 14px; border-radius: 6px; font-family: monospace; font-size: 9.5pt; line-height: 1.6; margin: 12px 0; page-break-inside: avoid; }
+  .arch .grn { color: #2ECC71; }
+  .arch .gld { color: #FFD700; }
+  .arch .blu { color: #4361EE; }
+  .footer { margin-top: 40px; padding-top: 12px; border-top: 1px solid #ddd; font-size: 9pt; color: #999; text-align: center; }
+  .page-break { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<h1>⚽ FIFA World Cup 2026<br>Cloudflare Tunnel Setup & Monetization Guide</h1>
+<p class="meta">Prepared for Aanand AB · Project: Fifa2026 · June 2026</p>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2>1. Architecture Overview</h2>
+
+<div class="arch">
+┌─────────────────────────────────────────────────────────────────────┐
+│                        <span class="gld">INDIA VIEWERS</span>                              │
+│    browse to: <span class="grn">watch.fifa2026.in</span> (your custom domain)              │
+└────────────────────────────────┬────────────────────────────────────┘
+                                 │ HTTPS
+                                 ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                <span class="blu">CLOUDFLARE EDGE</span> (Mumbai / Chennai / Delhi)         │
+│   • SSL termination (automatic)                                     │
+│   • DDoS protection (built-in, free)                                │
+│   • Argo Smart Routing (optional, $5/mo — faster US→India path)    │
+└────────────────────────────────┬────────────────────────────────────┘
+                                 │ Cloudflare Tunnel (encrypted)
+                                 ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                      <span class="gld">YOUR US MACHINE</span>                             │
+│   ┌────────────┐   ┌─────────────┐   ┌──────────────────────────┐  │
+│   │ OTA Antenna│──▶│ TV Tuner /  │──▶│  ffmpeg → HLS → :8080   │  │
+│   │ (Fox/Tel.) │   │ Capture Card│   │                          │  │
+│   └────────────┘   └─────────────┘   └───────────┬──────────────┘  │
+│                                                  │                  │
+│                           cloudflared tunnel ◀────┘                  │
+│                           (connects to Cloudflare)                   │
+└─────────────────────────────────────────────────────────────────────┘
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2>2. Phase-by-Phase Setup</h2>
+
+<h3>Phase 1: Domain & DNS (5 minutes)</h3>
+<ol>
+  <li>Buy a domain from <strong>Namecheap</strong>, <strong>Porkbun</strong>, or <strong>Cloudflare Registrar</strong> (at cost — cheapest)</li>
+  <li>Sign up at <strong>cloudflare.com</strong> (free tier)</li>
+  <li>Add your domain → Cloudflare scans DNS → <strong>change nameservers</strong> at your registrar to Cloudflare's</li>
+  <li>DNS → Add record: Type <code>CNAME</code>, Name <code>watch</code>, Target <code>@</code>, <strong>Proxy ON</strong> (orange cloud)</li>
+</ol>
+
+<h3>Phase 2: US Machine — Stream Capture</h3>
+
+<div class="box box-yellow">
+  <strong>Option A: Software-Only (Free, no hardware)</strong><br>
+  Uses streamlink to capture Fox/Telemundo website streams.
+</div>
+
+<pre># Install streamlink
+pip install streamlink
+
+# Capture Fox stream and convert to HLS
+streamlink https://foxsports.com/live best -O | ffmpeg -i pipe:0 \
+  -c:v libx264 -preset veryfast -b:v 1500k \
+  -c:a aac -b:a 128k \
+  -f hls -hls_time 4 -hls_list_size 6 \
+  -hls_flags delete_segments \
+  stream.m3u8
+
+# Serve HLS files via HTTP
+python3 -m http.server 8080</pre>
+
+<div class="box box-green">
+  <strong>Option B: OTA Hardware (Most Reliable, ~$120 one-time)</strong><br>
+  Captures actual over-the-air TV signal — no dependency on websites.
+</div>
+
+<table>
+  <tr><th>Item</th><th>Cost (USD)</th><th>Where</th></tr>
+  <tr><td>HDHomeRun Flex Duo (ATSC 3.0 tuner)</td><td>~$100</td><td>amazon.com</td></tr>
+  <tr><td>Indoor HDTV antenna</td><td>~$20</td><td>Any electronics store</td></tr>
+  <tr><td><strong>Total</strong></td><td><strong>~$120</strong></td><td></td></tr>
+</table>
+
+<pre># Find your Fox channel (usually 5.1 or 11.1 depending on city)
+hdhomerun_config discover
+
+# Capture and restream
+ffmpeg -i http://192.168.1.x:5004/auto/v5.1 \
+  -c:v libx264 -preset veryfast -b:v 1500k -s 1280x720 \
+  -c:a aac -b:a 128k \
+  -f hls -hls_time 4 -hls_list_size 6 \
+  -hls_flags delete_segments \
+  stream.m3u8
+
+python3 -m http.server 8080</pre>
+
+<h3>Phase 3: Cloudflare Tunnel Setup (US Machine)</h3>
+
+<pre># Step 1: Install cloudflared on Windows
+# Download: https://github.com/cloudflare/cloudflared/releases
+# Or in PowerShell: winget install Cloudflare.cloudflared
+
+# Step 2: Authenticate with Cloudflare
+cloudflared tunnel login
+# → Opens browser → pick your domain → authorize
+
+# Step 3: Create a named tunnel
+cloudflared tunnel create fifa2026-stream
+# → Creates tunnel ID and credentials file at:
+#   C:\Users\&lt;user&gt;\.cloudflared\&lt;TUNNEL_ID&gt;.json
+
+# Step 4: Route your subdomain
+cloudflared tunnel route dns fifa2026-stream watch.yourdomain.com
+
+# Step 5: Run (test first)
+cloudflared tunnel run fifa2026-stream</pre>
+
+<h3>Create config.yml</h3>
+<p>Save to: <code>C:\Users\&lt;user&gt;\.cloudflared\config.yml</code></p>
+
+<pre>tunnel: &lt;TUNNEL_ID&gt;
+credentials-file: C:\Users\&lt;user&gt;\.cloudflared\&lt;TUNNEL_ID&gt;.json
+
+ingress:
+  - hostname: watch.yourdomain.com
+    service: http://localhost:8080
+  - service: http_status:404</pre>
+
+<h3>Run as Windows Service (auto-start on boot)</h3>
+<pre>cloudflared service install
+# Tunnel survives reboots, runs in background</pre>
+
+<h3>Phase 4: Update Website Player</h3>
+<p>The stream player in <code>index.html</code> will be updated to point to your Cloudflare domain:</p>
+<pre>&lt;video src="https://watch.yourdomain.com/stream.m3u8"&gt;</pre>
+<p>Cloudflare handles HTTPS automatically — no SSL certificate setup needed.</p>
+
+<h3>Phase 5: Going Live Checklist</h3>
+<table>
+  <tr><th>#</th><th>Task</th></tr>
+  <tr><td>☐</td><td>US machine has antenna + tuner OR streamlink access to Fox</td></tr>
+  <tr><td>☐</td><td>ffmpeg captures OTA and serves HLS on <code>:8080</code></td></tr>
+  <tr><td>☐</td><td>cloudflared installed and tunnel created</td></tr>
+  <tr><td>☐</td><td>Subdomain routed: <code>watch.yourdomain.com</code> → tunnel</td></tr>
+  <tr><td>☐</td><td>cloudflared running as Windows service</td></tr>
+  <tr><td>☐</td><td>Test: open <code>watch.yourdomain.com</code> in browser → see stream</td></tr>
+  <tr><td>☐</td><td>Update website player URL → deploy to Netlify/Vercel</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<h2>3. Tailscale Funnel vs Cloudflare Tunnel</h2>
+
+<table>
+  <tr><th>Factor</th><th>Tailscale Funnel</th><th>Cloudflare Tunnel ✅</th></tr>
+  <tr><td>Edge servers in India</td><td>❌ No (relayed via SG/JP)</td><td>✅ Mumbai, Chennai, Delhi, Bangalore, Kolkata</td></tr>
+  <tr><td>India viewer latency</td><td>40-80ms (edge) + 150-200ms = <strong>~200ms</strong></td><td>300-500ms total</td></tr>
+  <tr><td>Stability</td><td>Shared DERP relay, varies</td><td>Enterprise fiber backbone</td></tr>
+  <tr><td>VPN/app needed?</td><td>❌ No</td><td>❌ No</td></tr>
+  <tr><td>Concurrent viewers</td><td>1-5 comfortable</td><td>50-100+</td></tr>
+  <tr><td>Custom domain</td><td>tailnet.ts.net only</td><td>✅ watch.yourdomain.in</td></tr>
+  <tr><td>DDoS protection</td><td>❌ None</td><td>✅ Built-in (free)</td></tr>
+  <tr><td>Cost</td><td>Free</td><td>Free</td></tr>
+</table>
+
+<div class="box box-green">
+  <strong>Winner: Cloudflare Tunnel</strong> — India edge servers + direct fiber backbone + custom domain + enterprise DDoS protection. All free.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2>4. Monetization Strategy</h2>
+
+<h3>Market Context</h3>
+<ul>
+  <li>India: <strong>1.4 billion population</strong></li>
+  <li>2022 World Cup: ~85M Indian viewers (despite 2AM kickoffs)</li>
+  <li>Football viewership in India is <strong>exploding</strong> — IPL-level ad rates emerging</li>
+  <li>2026 kickoffs at better times for IST (most matches 6PM-2AM IST)</li>
+</ul>
+
+<h3>Tier 1: Day-1 Revenue (Immediate)</h3>
+
+<h4>A. Google AdSense</h4>
+<table>
+  <tr><th>Placement</th><th>RPM (India)</th><th>Monthly @ 10K daily visitors</th></tr>
+  <tr><td>Banner (728×90)</td><td>$0.50–1.50</td><td>$150–450</td></tr>
+  <tr><td>Sidebar (300×250)</td><td>$0.80–2.00</td><td>$240–600</td></tr>
+  <tr><td>In-content</td><td>$1.00–3.00</td><td>$300–900</td></tr>
+  <tr><td><strong>Video pre-roll</strong></td><td><strong>$2.00–5.00</strong></td><td><strong>$600–1,500</strong></td></tr>
+  <tr><td colspan="2"><strong>Estimated Total</strong></td><td><strong>$1,200–3,450/month</strong></td></tr>
+</table>
+<p><em>Video pre-roll ads before the stream player are your highest-value placement.</em></p>
+
+<h4>B. Affiliate Links</h4>
+<table>
+  <tr><th>Partner</th><th>Commission</th><th>Pitch</th></tr>
+  <tr><td>Amazon (football gear)</td><td>4–8%</td><td>"Get the official 2026 jersey"</td></tr>
+  <tr><td>Dream11 / MPL</td><td>₹50–100/signup</td><td>"Build your fantasy XI"</td></tr>
+  <tr><td>FanCode Shop</td><td>10–15%</td><td>Official India sports merch</td></tr>
+  <tr><td>ExpressVPN</td><td>$15–30/signup</td><td>"Watch from anywhere"</td></tr>
+  <tr><td>Hostinger</td><td>$50–100/sale</td><td>"Host your own site"</td></tr>
+</table>
+
+<h4>C. Donations (5 min setup)</h4>
+<ul>
+  <li><strong>UPI QR code</strong> in footer — "☕ Support the stream" — zero fees, instant in India</li>
+  <li><strong>Buy Me a Coffee</strong> / <strong>Ko-fi</strong> — 0–5% platform fee, international payments</li>
+</ul>
+
+<h3>Tier 2: Premium Features (Week 2)</h3>
+
+<table>
+  <tr><th>Feature</th><th>Price</th><th>Revenue Model</th></tr>
+  <tr><td><strong>Paid bracket competition</strong></td><td>$2.99 entry</td><td>50% to prize pool, 50% to you</td></tr>
+  <tr><td><strong>Ad-free experience</strong></td><td>$4.99/mo or $9.99 lifetime</td><td>100% margin</td></tr>
+  <tr><td><strong>SMS goal alerts</strong></td><td>$1.99/mo</td><td>Via Twilio ($0.0075/SMS in India)</td></tr>
+  <tr><td><strong>AI match predictions</strong></td><td>$3.99/mo</td><td>Premium predictor access</td></tr>
+</table>
+
+<div class="box">
+  <strong>Example: Bracket Competition</strong><br>
+  500 people × $2.99 = $1,495<br>
+  → $750 to winner, <strong>$745 profit</strong>
+</div>
+
+<h3>Tier 3: Scaling (Week 3–4)</h3>
+
+<table>
+  <tr><th>Revenue Stream</th><th>Setup Difficulty</th><th>Peak Month Potential</th></tr>
+  <tr><td>Programmatic ads (AdSense)</td><td>Easy</td><td>$1K–5K</td></tr>
+  <tr><td>Direct ad sales to Indian brands</td><td>Medium</td><td>$5K–25K</td></tr>
+  <tr><td>Affiliate links</td><td>Easy</td><td>$500–3K</td></tr>
+  <tr><td>Premium subscriptions</td><td>Medium</td><td>$1K–10K</td></tr>
+  <tr><td>Sponsored match previews</td><td>Medium</td><td>$500–2K/post</td></tr>
+  <tr><td>White-label to sports bars</td><td>Hard</td><td>$2K–10K</td></tr>
+</table>
+
+<h3>Realistic Traffic & Revenue Projection (India)</h3>
+
+<table>
+  <tr><th>Tournament Phase</th><th>Daily Visitors</th><th>Revenue (Monthly)</th></tr>
+  <tr><td>Pre-tournament</td><td>500–2K</td><td>$200–800</td></tr>
+  <tr><td>Group Stage</td><td>5K–20K</td><td>$2,000–8,000</td></tr>
+  <tr><td>Knockouts</td><td>20K–50K</td><td>$8,000–20,000</td></tr>
+  <tr><td><strong>Final Week</strong></td><td><strong>50K–100K+</strong></td><td><strong>$20,000–50,000</strong></td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2>5. SEO Strategy</h2>
+
+<h3>Target Keywords (India-specific)</h3>
+<table>
+  <tr><th>Keyword</th><th>Monthly Searches (India)</th></tr>
+  <tr><td>FIFA World Cup 2026 live stream free</td><td>High</td></tr>
+  <tr><td>Watch World Cup online India free</td><td>Medium-High</td></tr>
+  <tr><td>World Cup 2026 match schedule IST</td><td>High</td></tr>
+  <tr><td>World Cup 2026 points table</td><td>High</td></tr>
+  <tr><td>How to watch FIFA World Cup in India</td><td>Medium</td></tr>
+  <tr><td>World Cup 2026 live score</td><td>Very High</td></tr>
+</table>
+
+<h3>Pages to Create</h3>
+<ul>
+  <li><code>/live</code> — "FIFA World Cup 2026 Live Stream Free"</li>
+  <li><code>/schedule</code> — "World Cup 2026 Match Schedule IST" (convert all times)</li>
+  <li><code>/points-table</code> — "World Cup 2026 Points Table"</li>
+  <li><code>/how-to-watch</code> — "How to Watch FIFA World Cup 2026 in India Free"</li>
+</ul>
+
+<h3>Technical SEO (already done in codebase)</h3>
+<ul>
+  <li>✅ Meta description tag</li>
+  <li>✅ Open Graph tags (Facebook/Twitter link previews)</li>
+  <li>✅ Semantic HTML (<code>&lt;nav&gt;</code>, <code>&lt;main&gt;</code>, <code>&lt;article&gt;</code>)</li>
+  <li>✅ Mobile responsive (Google mobile-first indexing)</li>
+  <li>✅ PWA manifest (installable as app)</li>
+  <li>🔜 Add: sitemap.xml + robots.txt</li>
+  <li>🔜 Add: Schema.org structured data (SportsEvent)</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2>6. Legal Considerations</h2>
+
+<div class="box box-yellow">
+  <strong>⚠️ Important</strong><br>
+  This setup routes <strong>your own personal OTA broadcast</strong> — which is legally free over-the-air television in the US — through your own infrastructure. You are not re-broadcasting or pirating. However:
+  <ul>
+    <li>Check your local laws regarding re-streaming OTA content</li>
+    <li>This is a <strong>private relay</strong> of your personal TV signal — similar to a Slingbox</li>
+    <li>Do not publicly market this as "free World Cup streaming" — frame it as a fan stats/info site</li>
+    <li>Consult a lawyer if you plan to scale significantly</li>
+  </ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2>7. Quick Reference</h2>
+
+<table>
+  <tr><th>What</th><th>URL / Command</th></tr>
+  <tr><td>Cloudflare signup</td><td>cloudflare.com</td></tr>
+  <tr><td>cloudflared download</td><td>github.com/cloudflare/cloudflared/releases</td></tr>
+  <tr><td>Install cloudflared</td><td><code>winget install Cloudflare.cloudflared</code></td></tr>
+  <tr><td>Create tunnel</td><td><code>cloudflared tunnel create fifa2026-stream</code></td></tr>
+  <tr><td>Route domain</td><td><code>cloudflared tunnel route dns fifa2026-stream watch.yourdomain.com</code></td></tr>
+  <tr><td>Install as service</td><td><code>cloudflared service install</code></td></tr>
+  <tr><td>Stream server</td><td><code>python3 -m http.server 8080</code></td></tr>
+  <tr><td>Website repo</td><td>github.com/AanandAB/Fifa</td></tr>
+  <tr><td>AdSense signup</td><td>adsense.google.com</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2>8. What's Next</h2>
+
+<ol>
+  <li><strong>Buy domain</strong> — Pick one today (Namecheap/Porkbun)</li>
+  <li><strong>Set up Cloudflare</strong> — Add domain, configure DNS</li>
+  <li><strong>US machine capture</strong> — Set up antenna + tuner + ffmpeg</li>
+  <li><strong>Install cloudflared</strong> — Create tunnel, route subdomain</li>
+  <li><strong>Update website</strong> — Point stream player to Cloudflare URL</li>
+  <li><strong>Deploy site</strong> — Netlify/Vercel with custom domain</li>
+  <li><strong>Monetize</strong> — AdSense + UPI + affiliate links</li>
+</ol>
+
+<div class="footer">
+  FIFA World Cup 2026 Hub · github.com/AanandAB/Fifa<br>
+  Generated June 2026 · For project reference only
+</div>
+
+</body>
+</html>
