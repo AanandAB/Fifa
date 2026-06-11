@@ -2265,70 +2265,37 @@ document.addEventListener('DOMContentLoaded', () => {
     window._hermes_fb_providers = STREAM_PROVIDERS;
   }
 
-  // ── Live Player Controls ──
-  const LP_PROVIDERS = {
-    footybite:    { name: 'FootyBite',          url: 'https://footybite.to/' },
-    vipleague:    { name: 'VIPLeague',          url: 'https://vipleague.im/' },
-    streamed:     { name: 'Streamed.su',        url: 'https://streamed.su/' },
-    soccerstreams:{ name: 'SoccerStreams',      url: 'https://soccerstreams.net/' },
-    jagobd:       { name: 'JagoBD (India)',     url: 'https://live.jagobd.com/' },
-    cricfree:     { name: 'CricFree',           url: 'https://cricfree.live/' },
-    totalsportek: { name: 'TotalSportek',       url: 'https://totalsportek.pro/' },
+  // ── YouTube Live Player Controls ──
+  const YT_LIVE_CHANNELS = {
+    fifa:         { name: 'FIFA Official',      channelId: 'UCpcTrCXblq78GZrTUTLWeBw', url: 'https://www.youtube.com/fifa' },
+    france24:     { name: 'FRANCE 24 (English)', channelId: 'UCQfwfsi5VrQ8yKZ-UWmAEFg', url: 'https://www.youtube.com/france24' },
+    moneycontrol: { name: 'Moneycontrol (India)', channelId: 'UChsrEqRr8iWQg4moygZq7fg', url: 'https://www.youtube.com/@moneycontrol' },
+    firstpost:    { name: 'Firstpost (India)',   channelId: 'UCzF4Rj02GmBqOi7Nh3aZ6Sg', url: 'https://www.youtube.com/@Firstpost' },
+    wion:         { name: 'WION (India)',        channelId: 'UC_gDch5RVM8lXjfl9yDUcNQ', url: 'https://www.youtube.com/@WION' },
   };
 
-  let lpProviderIdx = 0;
-  const lpProviderKeys = Object.keys(LP_PROVIDERS);
-
-  function switchPlayerProvider(key) {
-    const provider = LP_PROVIDERS[key];
-    if (!provider) return;
-    const frame = document.getElementById('lpFrame');
-    const overlay = document.getElementById('lpOverlay');
-    if (frame) { frame.src = provider.url; }
-    if (overlay) overlay.style.display = 'none';
-    lpProviderIdx = lpProviderKeys.indexOf(key);
-    document.getElementById('lpLiveDot')?.classList.add('loading');
-    setTimeout(() => document.getElementById('lpLiveDot')?.classList.remove('loading'), 3000);
+  function switchYTLiveChannel(key) {
+    const ch = YT_LIVE_CHANNELS[key];
+    if (!ch) return;
+    const frame = document.getElementById('ytLiveFrame');
+    if (frame) {
+      frame.src = `https://www.youtube.com/embed/live_stream?channel=${ch.channelId}&autoplay=0&rel=0&modestbranding=1`;
+    }
+    document.getElementById('ytLiveDot')?.classList.add('loading');
+    setTimeout(() => document.getElementById('ytLiveDot')?.classList.remove('loading'), 3000);
   }
 
-  function nextPlayerProvider() {
-    lpProviderIdx = (lpProviderIdx + 1) % lpProviderKeys.length;
-    const key = lpProviderKeys[lpProviderIdx];
-    document.getElementById('lpProviderSelect').value = key;
-    switchPlayerProvider(key);
-  }
-
-  function openPlayerInTab() {
-    const key = document.getElementById('lpProviderSelect')?.value || 'cricfree';
-    const provider = LP_PROVIDERS[key];
-    if (provider) window.open(provider.url, '_blank', 'noopener,noreferrer');
+  function openYTLiveInTab() {
+    const key = document.getElementById('ytLiveSelect')?.value || 'fifa';
+    const ch = YT_LIVE_CHANNELS[key];
+    if (ch) window.open(ch.url, '_blank', 'noopener,noreferrer');
   }
 
   function initLivePlayer() {
-    document.getElementById('lpProviderSelect')?.addEventListener('change', (e) => {
-      switchPlayerProvider(e.target.value);
+    document.getElementById('ytLiveSelect')?.addEventListener('change', (e) => {
+      switchYTLiveChannel(e.target.value);
     });
-    document.getElementById('lpOpenBtn')?.addEventListener('click', openPlayerInTab);
-    document.getElementById('lpRetryBtn')?.addEventListener('click', nextPlayerProvider);
-
-    // Detect iframe load failure
-    const frame = document.getElementById('lpFrame');
-    if (frame) {
-      frame.addEventListener('error', () => {
-        document.getElementById('lpOverlay').style.display = 'flex';
-      });
-      // Also check after timeout if frame is blank
-      setTimeout(() => {
-        try {
-          const doc = frame.contentDocument || frame.contentWindow?.document;
-          if (!doc || doc.body?.innerHTML?.length < 50) {
-            // Frame might be empty due to block — keep showing, don't overlay
-          }
-        } catch(e) {
-          // Cross-origin — can't check, assume it loaded
-        }
-      }, 5000);
-    }
+    document.getElementById('ytLiveTabBtn')?.addEventListener('click', openYTLiveInTab);
   }
 
   // ── Init fallback system on Watch section load ──

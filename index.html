@@ -342,45 +342,36 @@
       <p class="section-desc">Stream every match — 🇮🇳 Free sites in India + US broadcasters · All times in IST</p>
     </div>
 
-    <!-- Live Match Player -->
-    <div class="live-player-section" id="livePlayerSection">
-      <div class="lp-header">
-        <div class="lp-header-left">
-          <span class="lp-live-dot" id="lpLiveDot"></span>
-          <h3>📺 Live Match Player</h3>
+    <!-- YouTube Live Player -->
+    <div class="yt-live-section" id="ytLiveSection">
+      <div class="yt-live-header">
+        <div class="yt-live-header-left">
+          <span class="yt-live-dot" id="ytLiveDot"></span>
+          <h3>📺 YouTube Live — World Cup 2026</h3>
         </div>
-        <div class="lp-header-right">
-          <select class="lp-provider-select" id="lpProviderSelect">
-            <option value="footybite">FootyBite (recommended)</option>
-            <option value="vipleague">VIPLeague</option>
-            <option value="streamed">Streamed.su</option>
-            <option value="soccerstreams">SoccerStreams</option>
-            <option value="jagobd">JagoBD (India)</option>
-            <option value="cricfree">CricFree</option>
-            <option value="totalsportek">TotalSportek</option>
+        <div class="yt-live-header-right">
+          <select class="yt-live-select" id="ytLiveSelect">
+            <option value="fifa">FIFA Official</option>
+            <option value="france24">FRANCE 24 (English)</option>
+            <option value="moneycontrol">Moneycontrol (India)</option>
+            <option value="firstpost">Firstpost (India)</option>
+            <option value="wion">WION (India)</option>
           </select>
-          <button class="btn btn-sm btn-primary" id="lpOpenBtn">🔗 Open in New Tab</button>
+          <button class="btn btn-sm btn-primary" id="ytLiveTabBtn">🔗 Open in YouTube</button>
         </div>
       </div>
-      <div class="lp-player-wrap" id="lpPlayerWrap">
-        <iframe id="lpFrame" class="lp-frame" 
-          src="https://cricfree.live/" 
-          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation allow-presentation"
-          allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-          loading="lazy"
-          title="Live Match Stream">
+      <div class="yt-live-player-wrap">
+        <iframe id="ytLiveFrame" class="yt-live-frame"
+          src="https://www.youtube.com/embed/live_stream?channel=UCpcTrCXblq78GZrTUTLWeBw&autoplay=0&rel=0&modestbranding=1"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+          title="YouTube Live Stream">
         </iframe>
-        <div class="lp-overlay" id="lpOverlay" style="display:none">
-          <div class="lp-overlay-content">
-            <span class="lp-overlay-icon">🚫</span>
-            <p>This provider blocked embedding.</p>
-            <button class="btn btn-primary" id="lpRetryBtn">Try Next Provider</button>
-          </div>
-        </div>
       </div>
-      <div class="lp-note">
+      <div class="yt-live-note">
         <span>💡</span>
-        <span><strong>Embedded from third-party sites.</strong> Use provider switcher if one doesn't load. These are aggregator sites — navigate to find live match streams. <em>May contain ads. Use an ad-blocker.</em></span>
+        <span><strong>Official YouTube live streams.</strong> Switch channels above to find coverage. <em>FRANCE 24, Moneycontrol, WION stream pre-match & live analysis. FIFA Official for highlights & ceremonies.</em></span>
       </div>
     </div>
 
