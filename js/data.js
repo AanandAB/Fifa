@@ -4,143 +4,143 @@ const GROUPS = {
     teams: ["Mexico", "South Africa", "South Korea", "Czechia"],
     fixtures: [
       { home: "Mexico", away: "South Africa", date: "2026-06-11", time: "00:30 IST (Jun 12)", venue: "Estadio Azteca, Mexico City" },
-      { home: "South Korea", away: "Czechia", date: "2026-06-11", time: "07:30 IST (Jun 12)", venue: "Estadio Akron, Zapopan" },
-      { home: "Mexico", away: "Czechia", date: "2026-06-15", time: "03:30 IST (Jun 16)", venue: "Estadio Azteca, Mexico City" },
-      { home: "South Africa", away: "South Korea", date: "2026-06-15", time: "06:30 IST (Jun 16)", venue: "Estadio BBVA, Monterrey" },
-      { home: "Mexico", away: "South Korea", date: "2026-06-19", time: "TBD", venue: "Estadio Azteca, Mexico City" },
-      { home: "Czechia", away: "South Africa", date: "2026-06-19", time: "TBD", venue: "Estadio Akron, Zapopan" }
+      { home: "South Korea", away: "Czechia", date: "2026-06-11", time: "07:30 IST", venue: "Estadio Akron, Zapopan" },
+      { home: "Mexico", away: "Czechia", date: "2026-06-15", time: "06:30 IST", venue: "Estadio Azteca, Mexico City" },
+      { home: "South Africa", away: "South Korea", date: "2026-06-15", time: "06:30 IST", venue: "Estadio BBVA, Monterrey" },
+      { home: "Mexico", away: "South Korea", date: "2026-06-19", time: "06:30 IST", venue: "Estadio Azteca, Mexico City" },
+      { home: "Czechia", away: "South Africa", date: "2026-06-19", time: "21:30 IST", venue: "Estadio Akron, Zapopan" }
     ]
   },
   B: {
     name: "Group B",
     teams: ["Canada", "Bosnia and Herzegovina", "Qatar", "Switzerland"],
     fixtures: [
-      { home: "Canada", away: "Bosnia and Herzegovina", date: "2026-06-12", time: "TBD", venue: "BMO Field, Toronto" },
-      { home: "Qatar", away: "Switzerland", date: "2026-06-12", time: "TBD", venue: "BC Place, Vancouver" },
-      { home: "Canada", away: "Qatar", date: "2026-06-16", time: "TBD", venue: "BMO Field, Toronto" },
-      { home: "Bosnia and Herzegovina", away: "Switzerland", date: "2026-06-16", time: "TBD", venue: "BC Place, Vancouver" },
-      { home: "Canada", away: "Switzerland", date: "2026-06-20", time: "TBD", venue: "BMO Field, Toronto" },
-      { home: "Bosnia and Herzegovina", away: "Qatar", date: "2026-06-20", time: "TBD", venue: "BC Place, Vancouver" }
+      { home: "Canada", away: "Bosnia and Herzegovina", date: "2026-06-12", time: "00:30 IST (Jun 13)", venue: "BMO Field, Toronto" },
+      { home: "Qatar", away: "Switzerland", date: "2026-06-12", time: "00:30 IST (Jun 14)", venue: "BC Place, Vancouver" },
+      { home: "Canada", away: "Qatar", date: "2026-06-16", time: "03:30 IST (Jun 19)", venue: "BMO Field, Toronto" },
+      { home: "Bosnia and Herzegovina", away: "Switzerland", date: "2026-06-16", time: "00:30 IST (Jun 19)", venue: "BC Place, Vancouver" },
+      { home: "Canada", away: "Switzerland", date: "2026-06-20", time: "00:30 IST (Jun 25)", venue: "BMO Field, Toronto" },
+      { home: "Bosnia and Herzegovina", away: "Qatar", date: "2026-06-20", time: "00:30 IST (Jun 25)", venue: "BC Place, Vancouver" }
     ]
   },
   C: {
     name: "Group C",
     teams: ["Brazil", "Morocco", "Haiti", "Scotland"],
     fixtures: [
-      { home: "Brazil", away: "Morocco", date: "2026-06-13", time: "TBD", venue: "AT&T Stadium, Dallas" },
-      { home: "Haiti", away: "Scotland", date: "2026-06-13", time: "TBD", venue: "Estadio Universitario, Monterrey" },
-      { home: "Brazil", away: "Haiti", date: "2026-06-17", time: "TBD", venue: "SoFi Stadium, Los Angeles" },
-      { home: "Morocco", away: "Scotland", date: "2026-06-17", time: "TBD", venue: "AT&T Stadium, Dallas" },
-      { home: "Brazil", away: "Scotland", date: "2026-06-21", time: "TBD", venue: "MetLife Stadium, New York" },
-      { home: "Morocco", away: "Haiti", date: "2026-06-21", time: "TBD", venue: "AT&T Stadium, Dallas" }
+      { home: "Brazil", away: "Morocco", date: "2026-06-13", time: "03:30 IST (Jun 14)", venue: "AT&T Stadium, Dallas" },
+      { home: "Haiti", away: "Scotland", date: "2026-06-13", time: "06:30 IST", venue: "Estadio Universitario, Monterrey" },
+      { home: "Brazil", away: "Haiti", date: "2026-06-17", time: "06:00 IST", venue: "SoFi Stadium, Los Angeles" },
+      { home: "Morocco", away: "Scotland", date: "2026-06-17", time: "03:30 IST (Jun 20)", venue: "AT&T Stadium, Dallas" },
+      { home: "Brazil", away: "Scotland", date: "2026-06-21", time: "03:30 IST (Jun 25)", venue: "MetLife Stadium, New York" },
+      { home: "Morocco", away: "Haiti", date: "2026-06-21", time: "03:30 IST (Jun 25)", venue: "AT&T Stadium, Dallas" }
     ]
   },
   D: {
     name: "Group D",
     teams: ["United States", "Paraguay", "Australia", "Türkiye"],
     fixtures: [
-      { home: "United States", away: "Paraguay", date: "2026-06-12", time: "00:30 IST (Jun 13)", venue: "SoFi Stadium, Los Angeles" },
-      { home: "Australia", away: "Türkiye", date: "2026-06-12", time: "TBD", venue: "Lumen Field, Seattle" },
-      { home: "United States", away: "Australia", date: "2026-06-19", time: "TBD", venue: "Lumen Field, Seattle" },
-      { home: "Paraguay", away: "Türkiye", date: "2026-06-19", time: "TBD", venue: "MetLife Stadium, New York" },
-      { home: "United States", away: "Türkiye", date: "2026-06-25", time: "TBD", venue: "SoFi Stadium, Los Angeles" },
-      { home: "Paraguay", away: "Australia", date: "2026-06-25", time: "TBD", venue: "Rose Bowl, Pasadena" }
+      { home: "United States", away: "Paraguay", date: "2026-06-12", time: "06:30 IST", venue: "SoFi Stadium, Los Angeles" },
+      { home: "Australia", away: "Türkiye", date: "2026-06-12", time: "09:30 IST", venue: "Lumen Field, Seattle" },
+      { home: "United States", away: "Australia", date: "2026-06-19", time: "00:30 IST (Jun 20)", venue: "Lumen Field, Seattle" },
+      { home: "Paraguay", away: "Türkiye", date: "2026-06-19", time: "08:30 IST", venue: "MetLife Stadium, New York" },
+      { home: "United States", away: "Türkiye", date: "2026-06-25", time: "07:30 IST", venue: "SoFi Stadium, Los Angeles" },
+      { home: "Paraguay", away: "Australia", date: "2026-06-25", time: "07:30 IST", venue: "Rose Bowl, Pasadena" }
     ]
   },
   E: {
     name: "Group E",
     teams: ["Germany", "Curaçao", "Ivory Coast", "Ecuador"],
     fixtures: [
-      { home: "Germany", away: "Curaçao", date: "2026-06-14", time: "TBD", venue: "Lincoln Financial Field, Philadelphia" },
-      { home: "Ivory Coast", away: "Ecuador", date: "2026-06-14", time: "TBD", venue: "Hard Rock Stadium, Miami" },
-      { home: "Germany", away: "Ivory Coast", date: "2026-06-18", time: "TBD", venue: "Lincoln Financial Field, Philadelphia" },
-      { home: "Curaçao", away: "Ecuador", date: "2026-06-18", time: "TBD", venue: "Hard Rock Stadium, Miami" },
-      { home: "Germany", away: "Ecuador", date: "2026-06-22", time: "TBD", venue: "Lincoln Financial Field, Philadelphia" },
-      { home: "Curaçao", away: "Ivory Coast", date: "2026-06-22", time: "TBD", venue: "Hard Rock Stadium, Miami" }
+      { home: "Germany", away: "Curaçao", date: "2026-06-14", time: "22:30 IST", venue: "Lincoln Financial Field, Philadelphia" },
+      { home: "Ivory Coast", away: "Ecuador", date: "2026-06-14", time: "04:30 IST (Jun 15)", venue: "Hard Rock Stadium, Miami" },
+      { home: "Germany", away: "Ivory Coast", date: "2026-06-18", time: "01:30 IST (Jun 21)", venue: "Lincoln Financial Field, Philadelphia" },
+      { home: "Curaçao", away: "Ecuador", date: "2026-06-18", time: "05:30 IST", venue: "Hard Rock Stadium, Miami" },
+      { home: "Germany", away: "Ecuador", date: "2026-06-22", time: "01:30 IST (Jun 26)", venue: "Lincoln Financial Field, Philadelphia" },
+      { home: "Curaçao", away: "Ivory Coast", date: "2026-06-22", time: "01:30 IST (Jun 26)", venue: "Hard Rock Stadium, Miami" }
     ]
   },
   F: {
     name: "Group F",
     teams: ["Netherlands", "Japan", "Sweden", "Tunisia"],
     fixtures: [
-      { home: "Netherlands", away: "Japan", date: "2026-06-14", time: "TBD", venue: "Gillette Stadium, Boston" },
-      { home: "Sweden", away: "Tunisia", date: "2026-06-14", time: "TBD", venue: "Bank of America Stadium, Charlotte" },
-      { home: "Netherlands", away: "Sweden", date: "2026-06-18", time: "TBD", venue: "Gillette Stadium, Boston" },
-      { home: "Japan", away: "Tunisia", date: "2026-06-18", time: "TBD", venue: "Bank of America Stadium, Charlotte" },
-      { home: "Netherlands", away: "Tunisia", date: "2026-06-22", time: "TBD", venue: "Gillette Stadium, Boston" },
-      { home: "Japan", away: "Sweden", date: "2026-06-22", time: "TBD", venue: "Bank of America Stadium, Charlotte" }
+      { home: "Netherlands", away: "Japan", date: "2026-06-14", time: "01:30 IST (Jun 15)", venue: "Gillette Stadium, Boston" },
+      { home: "Sweden", away: "Tunisia", date: "2026-06-14", time: "07:30 IST", venue: "Bank of America Stadium, Charlotte" },
+      { home: "Netherlands", away: "Sweden", date: "2026-06-18", time: "22:30 IST", venue: "Gillette Stadium, Boston" },
+      { home: "Japan", away: "Tunisia", date: "2026-06-18", time: "09:30 IST", venue: "Bank of America Stadium, Charlotte" },
+      { home: "Netherlands", away: "Tunisia", date: "2026-06-22", time: "04:30 IST (Jun 26)", venue: "Gillette Stadium, Boston" },
+      { home: "Japan", away: "Sweden", date: "2026-06-22", time: "04:30 IST (Jun 26)", venue: "Bank of America Stadium, Charlotte" }
     ]
   },
   G: {
     name: "Group G",
     teams: ["Belgium", "Egypt", "Iran", "New Zealand"],
     fixtures: [
-      { home: "Belgium", away: "Egypt", date: "2026-06-15", time: "TBD", venue: "AT&T Stadium, Dallas" },
-      { home: "Iran", away: "New Zealand", date: "2026-06-15", time: "TBD", venue: "Arrowhead Stadium, Kansas City" },
-      { home: "Belgium", away: "Iran", date: "2026-06-19", time: "TBD", venue: "AT&T Stadium, Dallas" },
-      { home: "Egypt", away: "New Zealand", date: "2026-06-19", time: "TBD", venue: "Arrowhead Stadium, Kansas City" },
-      { home: "Belgium", away: "New Zealand", date: "2026-06-23", time: "TBD", venue: "AT&T Stadium, Dallas" },
-      { home: "Egypt", away: "Iran", date: "2026-06-23", time: "TBD", venue: "Arrowhead Stadium, Kansas City" }
+      { home: "Belgium", away: "Egypt", date: "2026-06-15", time: "00:30 IST (Jun 16)", venue: "AT&T Stadium, Dallas" },
+      { home: "Iran", away: "New Zealand", date: "2026-06-15", time: "06:30 IST", venue: "Arrowhead Stadium, Kansas City" },
+      { home: "Belgium", away: "Iran", date: "2026-06-19", time: "00:30 IST (Jun 22)", venue: "AT&T Stadium, Dallas" },
+      { home: "Egypt", away: "New Zealand", date: "2026-06-19", time: "06:30 IST", venue: "Arrowhead Stadium, Kansas City" },
+      { home: "Belgium", away: "New Zealand", date: "2026-06-23", time: "08:30 IST", venue: "AT&T Stadium, Dallas" },
+      { home: "Egypt", away: "Iran", date: "2026-06-23", time: "08:30 IST", venue: "Arrowhead Stadium, Kansas City" }
     ]
   },
   H: {
     name: "Group H",
     teams: ["Spain", "Cape Verde", "Saudi Arabia", "Uruguay"],
     fixtures: [
-      { home: "Spain", away: "Cape Verde", date: "2026-06-15", time: "TBD", venue: "MetLife Stadium, New York" },
-      { home: "Saudi Arabia", away: "Uruguay", date: "2026-06-15", time: "TBD", venue: "Empower Field, Denver" },
-      { home: "Spain", away: "Saudi Arabia", date: "2026-06-19", time: "TBD", venue: "MetLife Stadium, New York" },
-      { home: "Cape Verde", away: "Uruguay", date: "2026-06-19", time: "TBD", venue: "Empower Field, Denver" },
-      { home: "Spain", away: "Uruguay", date: "2026-06-23", time: "TBD", venue: "MetLife Stadium, New York" },
-      { home: "Cape Verde", away: "Saudi Arabia", date: "2026-06-23", time: "TBD", venue: "Empower Field, Denver" }
+      { home: "Spain", away: "Cape Verde", date: "2026-06-15", time: "21:30 IST", venue: "MetLife Stadium, New York" },
+      { home: "Saudi Arabia", away: "Uruguay", date: "2026-06-15", time: "03:30 IST (Jun 16)", venue: "Empower Field, Denver" },
+      { home: "Spain", away: "Saudi Arabia", date: "2026-06-19", time: "21:30 IST", venue: "MetLife Stadium, New York" },
+      { home: "Cape Verde", away: "Uruguay", date: "2026-06-19", time: "03:30 IST (Jun 22)", venue: "Empower Field, Denver" },
+      { home: "Spain", away: "Uruguay", date: "2026-06-23", time: "05:30 IST", venue: "MetLife Stadium, New York" },
+      { home: "Cape Verde", away: "Saudi Arabia", date: "2026-06-23", time: "05:30 IST", venue: "Empower Field, Denver" }
     ]
   },
   I: {
     name: "Group I",
     teams: ["France", "Senegal", "Iraq", "Norway"],
     fixtures: [
-      { home: "France", away: "Senegal", date: "2026-06-16", time: "TBD", venue: "MetLife Stadium, New York" },
-      { home: "Iraq", away: "Norway", date: "2026-06-16", time: "TBD", venue: "Levi's Stadium, San Francisco" },
-      { home: "France", away: "Iraq", date: "2026-06-20", time: "TBD", venue: "MetLife Stadium, New York" },
-      { home: "Senegal", away: "Norway", date: "2026-06-20", time: "TBD", venue: "Levi's Stadium, San Francisco" },
-      { home: "France", away: "Norway", date: "2026-06-24", time: "TBD", venue: "MetLife Stadium, New York" },
-      { home: "Senegal", away: "Iraq", date: "2026-06-24", time: "TBD", venue: "Levi's Stadium, San Francisco" }
+      { home: "France", away: "Senegal", date: "2026-06-16", time: "00:30 IST (Jun 17)", venue: "MetLife Stadium, New York" },
+      { home: "Iraq", away: "Norway", date: "2026-06-16", time: "03:30 IST (Jun 17)", venue: "Levi's Stadium, San Francisco" },
+      { home: "France", away: "Iraq", date: "2026-06-20", time: "02:30 IST (Jun 23)", venue: "MetLife Stadium, New York" },
+      { home: "Senegal", away: "Norway", date: "2026-06-20", time: "05:30 IST", venue: "Levi's Stadium, San Francisco" },
+      { home: "France", away: "Norway", date: "2026-06-24", time: "00:30 IST (Jun 27)", venue: "MetLife Stadium, New York" },
+      { home: "Senegal", away: "Iraq", date: "2026-06-24", time: "00:30 IST (Jun 27)", venue: "Levi's Stadium, San Francisco" }
     ]
   },
   J: {
     name: "Group J",
     teams: ["Argentina", "Algeria", "Austria", "Jordan"],
     fixtures: [
-      { home: "Argentina", away: "Algeria", date: "2026-06-16", time: "TBD", venue: "AT&T Stadium, Dallas" },
-      { home: "Austria", away: "Jordan", date: "2026-06-16", time: "TBD", venue: "Estadio Universitario, Monterrey" },
-      { home: "Argentina", away: "Austria", date: "2026-06-20", time: "TBD", venue: "Rose Bowl, Pasadena" },
-      { home: "Algeria", away: "Jordan", date: "2026-06-20", time: "TBD", venue: "AT&T Stadium, Dallas" },
-      { home: "Argentina", away: "Jordan", date: "2026-06-24", time: "TBD", venue: "Rose Bowl, Pasadena" },
-      { home: "Algeria", away: "Austria", date: "2026-06-24", time: "TBD", venue: "AT&T Stadium, Dallas" }
+      { home: "Argentina", away: "Algeria", date: "2026-06-16", time: "06:30 IST", venue: "AT&T Stadium, Dallas" },
+      { home: "Austria", away: "Jordan", date: "2026-06-16", time: "09:30 IST", venue: "Estadio Universitario, Monterrey" },
+      { home: "Argentina", away: "Austria", date: "2026-06-20", time: "22:30 IST", venue: "Rose Bowl, Pasadena" },
+      { home: "Algeria", away: "Jordan", date: "2026-06-20", time: "08:30 IST", venue: "AT&T Stadium, Dallas" },
+      { home: "Argentina", away: "Jordan", date: "2026-06-24", time: "07:30 IST", venue: "Rose Bowl, Pasadena" },
+      { home: "Algeria", away: "Austria", date: "2026-06-24", time: "07:30 IST", venue: "AT&T Stadium, Dallas" }
     ]
   },
   K: {
     name: "Group K",
     teams: ["Portugal", "DR Congo", "Uzbekistan", "Colombia"],
     fixtures: [
-      { home: "Portugal", away: "DR Congo", date: "2026-06-17", time: "TBD", venue: "Levi's Stadium, San Francisco" },
-      { home: "Uzbekistan", away: "Colombia", date: "2026-06-17", time: "TBD", venue: "Lincoln Financial Field, Philadelphia" },
-      { home: "Portugal", away: "Uzbekistan", date: "2026-06-21", time: "TBD", venue: "Levi's Stadium, San Francisco" },
-      { home: "DR Congo", away: "Colombia", date: "2026-06-21", time: "TBD", venue: "Hard Rock Stadium, Miami" },
-      { home: "Portugal", away: "Colombia", date: "2026-06-25", time: "TBD", venue: "Levi's Stadium, San Francisco" },
-      { home: "DR Congo", away: "Uzbekistan", date: "2026-06-25", time: "TBD", venue: "Hard Rock Stadium, Miami" }
+      { home: "Portugal", away: "DR Congo", date: "2026-06-17", time: "22:30 IST", venue: "Levi's Stadium, San Francisco" },
+      { home: "Uzbekistan", away: "Colombia", date: "2026-06-17", time: "07:30 IST", venue: "Lincoln Financial Field, Philadelphia" },
+      { home: "Portugal", away: "Uzbekistan", date: "2026-06-21", time: "22:30 IST", venue: "Levi's Stadium, San Francisco" },
+      { home: "DR Congo", away: "Colombia", date: "2026-06-21", time: "07:30 IST", venue: "Hard Rock Stadium, Miami" },
+      { home: "Portugal", away: "Colombia", date: "2026-06-25", time: "05:00 IST (Jun 28)", venue: "Levi's Stadium, San Francisco" },
+      { home: "DR Congo", away: "Uzbekistan", date: "2026-06-25", time: "05:00 IST (Jun 28)", venue: "Hard Rock Stadium, Miami" }
     ]
   },
   L: {
     name: "Group L",
     teams: ["England", "Croatia", "Ghana", "Panama"],
     fixtures: [
-      { home: "England", away: "Croatia", date: "2026-06-17", time: "TBD", venue: "MetLife Stadium, New York" },
-      { home: "Ghana", away: "Panama", date: "2026-06-17", time: "TBD", venue: "Gillette Stadium, Boston" },
-      { home: "England", away: "Ghana", date: "2026-06-21", time: "TBD", venue: "MetLife Stadium, New York" },
-      { home: "Croatia", away: "Panama", date: "2026-06-21", time: "TBD", venue: "Gillette Stadium, Boston" },
-      { home: "England", away: "Panama", date: "2026-06-25", time: "TBD", venue: "MetLife Stadium, New York" },
-      { home: "Croatia", away: "Ghana", date: "2026-06-25", time: "TBD", venue: "Gillette Stadium, Boston" }
+      { home: "England", away: "Croatia", date: "2026-06-17", time: "01:30 IST (Jun 18)", venue: "MetLife Stadium, New York" },
+      { home: "Ghana", away: "Panama", date: "2026-06-17", time: "04:30 IST (Jun 18)", venue: "Gillette Stadium, Boston" },
+      { home: "England", away: "Ghana", date: "2026-06-21", time: "01:30 IST (Jun 24)", venue: "MetLife Stadium, New York" },
+      { home: "Croatia", away: "Panama", date: "2026-06-21", time: "04:30 IST (Jun 24)", venue: "Gillette Stadium, Boston" },
+      { home: "England", away: "Panama", date: "2026-06-25", time: "02:30 IST (Jun 28)", venue: "MetLife Stadium, New York" },
+      { home: "Croatia", away: "Ghana", date: "2026-06-25", time: "02:30 IST (Jun 28)", venue: "Gillette Stadium, Boston" }
     ]
   }
 };
