@@ -351,9 +351,13 @@
         </div>
         <div class="lp-header-right">
           <select class="lp-provider-select" id="lpProviderSelect">
-            <option value="cricfree">CricFree.live</option>
+            <option value="footybite">FootyBite (recommended)</option>
+            <option value="vipleague">VIPLeague</option>
+            <option value="streamed">Streamed.su</option>
+            <option value="soccerstreams">SoccerStreams</option>
+            <option value="jagobd">JagoBD (India)</option>
+            <option value="cricfree">CricFree</option>
             <option value="totalsportek">TotalSportek</option>
-            <option value="footybite">FootyBite</option>
           </select>
           <button class="btn btn-sm btn-primary" id="lpOpenBtn">🔗 Open in New Tab</button>
         </div>
@@ -361,7 +365,7 @@
       <div class="lp-player-wrap" id="lpPlayerWrap">
         <iframe id="lpFrame" class="lp-frame" 
           src="https://cricfree.live/" 
-          sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation allow-presentation"
           allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
           loading="lazy"
           title="Live Match Stream">

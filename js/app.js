@@ -2267,9 +2267,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Live Player Controls ──
   const LP_PROVIDERS = {
-    cricfree:     { name: 'CricFree.live',     url: 'https://cricfree.live/' },
-    totalsportek: { name: 'TotalSportek',       url: 'https://totalsportek.pro/' },
     footybite:    { name: 'FootyBite',          url: 'https://footybite.to/' },
+    vipleague:    { name: 'VIPLeague',          url: 'https://vipleague.im/' },
+    streamed:     { name: 'Streamed.su',        url: 'https://streamed.su/' },
+    soccerstreams:{ name: 'SoccerStreams',      url: 'https://soccerstreams.net/' },
+    jagobd:       { name: 'JagoBD (India)',     url: 'https://live.jagobd.com/' },
+    cricfree:     { name: 'CricFree',           url: 'https://cricfree.live/' },
+    totalsportek: { name: 'TotalSportek',       url: 'https://totalsportek.pro/' },
   };
 
   let lpProviderIdx = 0;
