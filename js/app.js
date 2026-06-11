@@ -739,6 +739,7 @@ document.addEventListener('DOMContentLoaded', () => {
       target.style.display = '';
       if (id === 'bracket') { setTimeout(buildBracket, 100); setTimeout(restoreBracketPicksUI, 300); }
       if (id === 'watch') setTimeout(initFallbackSystem, 100);
+      else stopMatchCenter();
       if (id === 'stats' && typeof Chart !== 'undefined') setTimeout(initCharts, 100);
     }
     navLinks.forEach(a => { a.classList.toggle('active', a.dataset.section === id); if (a.dataset.section === id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
@@ -1877,6 +1878,229 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   initFormationViewer();
 
+  // ══════════════════════════════════════════════════════════
+  //  LIVE MATCH CENTER — Scores, Stats, Commentary from ESPN
+  // ══════════════════════════════════════════════════════════
+
+  const LMC_CONFIG = {
+    apiBase: 'https://site.web.api.espn.com/apis/site/v2/sports/soccer/FIFA.WORLD',
+    refreshInterval: 30000,
+    maxMatches: 8
+  };
+
+  let lmcData = { matches: [], lastUpdated: null, intervalId: null };
+
+  // Fetch today's matches from ESPN scoreboard
+  async function fetchLiveMatches() {
+    const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    try {
+      const resp = await fetch(`${LMC_CONFIG.apiBase}/scoreboard?dates=${today}`, {
+        signal: AbortSignal.timeout(8000)
+      });
+      if (!resp.ok) return null;
+      const data = await resp.json();
+      
+      const matches = (data.events || []).slice(0, LMC_CONFIG.maxMatches).map(ev => {
+        const comp = ev.competitions?.[0] || {};
+        const status = comp.status || {};
+        const competitors = comp.competitors || [];
+        const home = competitors.find(c => c.homeAway === 'home') || {};
+        const away = competitors.find(c => c.homeAway === 'away') || {};
+        
+        return {
+          id: ev.id,
+          name: ev.name,
+          date: ev.date,
+          statusType: status.type?.name || 'STATUS_SCHEDULED',
+          statusDesc: status.type?.description || 'Scheduled',
+          statusState: status.type?.state || 'pre',
+          clock: status.displayClock || '',
+          homeTeam: home.team?.displayName || home.team?.shortDisplayName || 'TBD',
+          homeAbbr: home.team?.abbreviation || '',
+          homeScore: home.score ?? 0,
+          awayTeam: away.team?.displayName || away.team?.shortDisplayName || 'TBD',
+          awayAbbr: away.team?.abbreviation || '',
+          awayScore: away.score ?? 0,
+          venue: comp.venue?.fullName || '',
+          isLive: status.type?.state === 'in',
+          isFinished: status.type?.completed || false,
+        };
+      });
+      
+      return matches;
+    } catch (e) {
+      console.log('[LMC] Fetch failed:', e.message);
+      return null;
+    }
+  }
+
+  // Render match cards
+  function renderLiveMatchCenter(matches) {
+    const container = document.getElementById('lmcMatches');
+    const statusEl = document.getElementById('lmcStatus');
+    const updatedEl = document.getElementById('lmcUpdated');
+    const liveDot = document.getElementById('lmcLiveDot');
+    
+    if (!container) return;
+    
+    if (!matches || matches.length === 0) {
+      container.innerHTML = '<div class="lmc-empty">No matches scheduled for today. Check back soon!</div>';
+      if (statusEl) statusEl.textContent = 'No matches today';
+      if (liveDot) liveDot.classList.remove('live');
+      return;
+    }
+    
+    const liveCount = matches.filter(m => m.isLive).length;
+    const finishedCount = matches.filter(m => m.isFinished).length;
+    
+    if (statusEl) {
+      if (liveCount > 0) statusEl.textContent = `${liveCount} LIVE`;
+      else if (finishedCount === matches.length) statusEl.textContent = 'All matches completed';
+      else statusEl.textContent = `${matches.length} matches today`;
+    }
+    
+    if (liveDot) {
+      liveDot.classList.toggle('live', liveCount > 0);
+    }
+    
+    if (updatedEl) {
+      const now = new Date();
+      updatedEl.textContent = `Updated ${now.toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit',timeZone:'Asia/Kolkata'})} IST`;
+    }
+    
+    container.innerHTML = matches.map(m => {
+      const statusClass = m.isLive ? 'live' : m.isFinished ? 'finished' : 'upcoming';
+      const statusIcon = m.isLive ? '🔴' : m.isFinished ? '✅' : '⏳';
+      const scoreDisplay = m.isFinished || m.isLive 
+        ? `<span class="lmc-score">${m.homeScore} - ${m.awayScore}</span>`
+        : `<span class="lmc-vs">vs</span>`;
+      
+      return `<div class="lmc-match-card ${statusClass}" data-event-id="${m.id}" onclick="window._lmcToggleMatch(this)">
+        <div class="lmc-match-status">
+          <span class="lmc-status-icon">${statusIcon}</span>
+          <span class="lmc-status-text">${m.isLive ? m.clock + ' LIVE' : m.isFinished ? 'FT' : m.statusDesc}</span>
+        </div>
+        <div class="lmc-match-teams">
+          <div class="lmc-team home">
+            <span class="lmc-flag">${getFlag(m.homeTeam, 18)}</span>
+            <span class="lmc-team-name">${m.homeAbbr || m.homeTeam}</span>
+          </div>
+          ${scoreDisplay}
+          <div class="lmc-team away">
+            <span class="lmc-team-name">${m.awayAbbr || m.awayTeam}</span>
+            <span class="lmc-flag">${getFlag(m.awayTeam, 18)}</span>
+          </div>
+        </div>
+        <div class="lmc-match-footer">
+          <span class="lmc-venue">🏟 ${m.venue}</span>
+          <span class="lmc-expand-hint">Details ▾</span>
+        </div>
+        <div class="lmc-details" style="display:none">
+          <div class="lmc-details-loading">Loading stats...</div>
+        </div>
+      </div>`;
+    }).join('');
+    
+    lmcData.lastUpdated = new Date();
+  }
+
+  // Fetch detailed match stats when expanded
+  async function loadMatchDetails(eventId) {
+    try {
+      const resp = await fetch(`${LMC_CONFIG.apiBase}/summary?event=${eventId}`, {
+        signal: AbortSignal.timeout(8000)
+      });
+      if (!resp.ok) return null;
+      const data = await resp.json();
+      
+      const header = data.header || {};
+      const comp = header.competitions?.[0] || {};
+      const stats = {};
+      
+      // Extract statistics
+      for (const statGroup of comp.statistics || []) {
+        for (const s of statGroup.stats || []) {
+          stats[s.name || s.shortDisplayName] = s.displayValue;
+        }
+      }
+      
+      // Get last 10 plays
+      const plays = (data.plays || []).slice(-10).map(p => ({
+        text: p.text || '',
+        team: p.team?.abbreviation || '',
+        clock: p.period?.displayValue || p.clock?.displayValue || '',
+        type: p.type?.text || ''
+      }));
+      
+      return { stats, plays };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Toggle match details
+  async function toggleMatchDetails(card) {
+    const details = card.querySelector('.lmc-details');
+    if (!details) return;
+    
+    if (details.style.display === 'none') {
+      details.style.display = 'block';
+      const eventId = card.dataset.eventId;
+      
+      if (!card.dataset.loaded) {
+        details.innerHTML = '<div class="lmc-details-loading">Loading stats...</div>';
+        const data = await loadMatchDetails(eventId);
+        
+        if (data) {
+          let html = '<div class="lmc-stats-grid">';
+          for (const [key, val] of Object.entries(data.stats || {})) {
+            html += `<div class="lmc-stat-item"><span class="lmc-stat-val">${val}</span><span class="lmc-stat-label">${key}</span></div>`;
+          }
+          html += '</div>';
+          
+          if (data.plays && data.plays.length > 0) {
+            html += '<div class="lmc-plays"><h4>📋 Recent Plays</h4>';
+            for (const p of data.plays) {
+              html += `<div class="lmc-play"><span class="lmc-play-clock">${p.clock}</span> <span class="lmc-play-text">${p.text}</span></div>`;
+            }
+            html += '</div>';
+          }
+          
+          details.innerHTML = html;
+          card.dataset.loaded = '1';
+        } else {
+          details.innerHTML = '<div class="lmc-details-loading">Stats unavailable</div>';
+        }
+      }
+    } else {
+      details.style.display = 'none';
+    }
+  }
+
+  // Refresh match center
+  async function refreshMatchCenter() {
+    const matches = await fetchLiveMatches();
+    lmcData.matches = matches || lmcData.matches;
+    renderLiveMatchCenter(lmcData.matches);
+  }
+
+  // Start auto-refresh
+  function startMatchCenter() {
+    refreshMatchCenter();
+    lmcData.intervalId = setInterval(refreshMatchCenter, LMC_CONFIG.refreshInterval);
+  }
+
+  // Stop auto-refresh
+  function stopMatchCenter() {
+    if (lmcData.intervalId) {
+      clearInterval(lmcData.intervalId);
+      lmcData.intervalId = null;
+    }
+  }
+
+  // Expose toggle globally
+  window._lmcToggleMatch = toggleMatchDetails;
+
   // ── Free Stream Providers (click to open in new tab) ──
   const STREAM_PROVIDERS = [
     { id: 'epicsports', name: 'EpicSports.in',       icon: '⚽', url: 'https://www.epicsports.in/',     type: 'external', tag: 'RECOMMENDED', tagClass: 'live' },
@@ -1992,8 +2216,10 @@ document.addEventListener('DOMContentLoaded', () => {
   function initFallbackSystem() {
     document.getElementById('fbNextBtn')?.addEventListener('click', switchToNextProvider);
     document.getElementById('fbDismissBtn')?.addEventListener('click', hideFallbackAlert);
+    document.getElementById('lmcRefreshBtn')?.addEventListener('click', refreshMatchCenter);
     renderFallbackProviders();
     updateFallbackProviderPanel();
+    startMatchCenter();
   }
 
   //  INITIALIZATION

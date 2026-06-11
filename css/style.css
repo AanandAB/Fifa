@@ -1615,6 +1615,303 @@ img { max-width: 100%; display: block; }
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   LIVE MATCH CENTER — Scores, Stats, Commentary
+   ═══════════════════════════════════════════════════════════════ */
+.live-match-center {
+  margin-bottom: 20px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+}
+
+.lmc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.lmc-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lmc-live-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: all 0.3s;
+}
+
+.lmc-live-dot.live {
+  background: #ef4444;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+  animation: lmcPulse 1.5s ease infinite;
+}
+
+@keyframes lmcPulse {
+  0%, 100% { box-shadow: 0 0 4px rgba(239, 68, 68, 0.4); }
+  50% { box-shadow: 0 0 16px rgba(239, 68, 68, 0.8); }
+}
+
+.lmc-header h3 {
+  font-family: 'Oswald', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+.lmc-status {
+  font-size: 12px;
+  padding: 3px 10px;
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.lmc-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lmc-updated {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.lmc-refresh-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.lmc-refresh-btn:hover {
+  background: rgba(255, 215, 0, 0.1);
+  border-color: rgba(255, 215, 0, 0.3);
+  transform: rotate(180deg);
+}
+
+.lmc-matches {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lmc-loading, .lmc-empty {
+  text-align: center;
+  padding: 30px;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 14px;
+}
+
+/* Match Card */
+.lmc-match-card {
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.lmc-match-card:hover {
+  border-color: rgba(255, 215, 0, 0.2);
+  background: rgba(255, 215, 0, 0.03);
+}
+
+.lmc-match-card.live {
+  border-color: rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.05);
+  animation: lmcGlow 2s ease infinite;
+}
+
+@keyframes lmcGlow {
+  0%, 100% { box-shadow: 0 0 0 rgba(239, 68, 68, 0); }
+  50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.1); }
+}
+
+.lmc-match-card.finished {
+  opacity: 0.7;
+}
+
+.lmc-match-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.lmc-status-icon { font-size: 14px; }
+
+.lmc-status-text {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.live .lmc-status-text { color: #f87171; }
+.finished .lmc-status-text { color: #4ade80; }
+
+.lmc-match-teams {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.lmc-team {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.lmc-team.home { justify-content: flex-end; text-align: right; }
+.lmc-team.away { justify-content: flex-start; text-align: left; }
+
+.lmc-flag { font-size: 20px; flex-shrink: 0; }
+
+.lmc-team-name {
+  font-family: 'Oswald', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.3px;
+}
+
+.lmc-score {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 32px;
+  font-weight: 700;
+  color: #FFD700;
+  min-width: 70px;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+.live .lmc-score { color: #f87171; }
+
+.lmc-vs {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.3);
+  min-width: 30px;
+  text-align: center;
+}
+
+.lmc-match-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.lmc-venue {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.lmc-expand-hint {
+  font-size: 10px;
+  color: rgba(255, 215, 0, 0.4);
+  transition: color 0.2s;
+}
+
+.lmc-match-card:hover .lmc-expand-hint { color: rgba(255, 215, 0, 0.7); }
+
+/* Match Details (Stats + Plays) */
+.lmc-details {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  animation: lmcSlideDown 0.3s ease;
+}
+
+@keyframes lmcSlideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.lmc-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.lmc-stat-item {
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.lmc-stat-val {
+  display: block;
+  font-family: 'Bebas Neue', cursive;
+  font-size: 22px;
+  font-weight: 700;
+  color: #FFD700;
+}
+
+.lmc-stat-label {
+  display: block;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+.lmc-details-loading {
+  text-align: center;
+  padding: 16px;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 12px;
+}
+
+.lmc-plays h4 {
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 8px;
+}
+
+.lmc-play {
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.5;
+}
+
+.lmc-play-clock {
+  display: inline-block;
+  min-width: 28px;
+  font-weight: 600;
+  color: rgba(255, 215, 0, 0.6);
+  font-size: 11px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
    FALLBACK TOAST — Lag notification
    ═══════════════════════════════════════════════════════════════ */
 .fallback-toast {
