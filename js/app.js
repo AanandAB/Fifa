@@ -1890,48 +1890,100 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let lmcData = { matches: [], lastUpdated: null, intervalId: null };
 
-  // Fetch today's matches from ESPN scoreboard
+  // ── Multi-source live match fetcher (ESPN → FIFA → local) ──
+  async function fetchFromESPN(dateStr) {
+    const resp = await fetch(`${LMC_CONFIG.apiBase}/scoreboard?dates=${dateStr}`, {
+      signal: AbortSignal.timeout(6000)
+    });
+    if (!resp.ok) throw new Error('ESPN unavailable');
+    const data = await resp.json();
+    return (data.events || []).slice(0, LMC_CONFIG.maxMatches).map(ev => {
+      const comp = ev.competitions?.[0] || {};
+      const status = comp.status || {};
+      const competitors = comp.competitors || [];
+      const home = competitors.find(c => c.homeAway === 'home') || {};
+      const away = competitors.find(c => c.homeAway === 'away') || {};
+      return {
+        id: ev.id, name: ev.name, date: ev.date,
+        statusType: status.type?.name || 'STATUS_SCHEDULED',
+        statusDesc: status.type?.description || 'Scheduled',
+        statusState: status.type?.state || 'pre',
+        clock: status.displayClock || '',
+        homeTeam: home.team?.displayName || 'TBD',
+        homeAbbr: home.team?.abbreviation || '',
+        homeScore: home.score ?? 0,
+        awayTeam: away.team?.displayName || 'TBD',
+        awayAbbr: away.team?.abbreviation || '',
+        awayScore: away.score ?? 0,
+        venue: comp.venue?.fullName || '',
+        isLive: status.type?.state === 'in',
+        isFinished: status.type?.completed || false,
+        source: 'ESPN'
+      };
+    });
+  }
+
+  function fetchFromLocal(dateStr) {
+    // Parse YYYYMMDD → YYYY-MM-DD
+    const date = `${dateStr.slice(0,4)}-${dateStr.slice(4,6)}-${dateStr.slice(6,8)}`;
+    const allFixtures = [];
+    Object.values(GROUPS).forEach(g => g.fixtures.forEach(f => allFixtures.push({...f, group: g.name})));
+    const todayFixtures = allFixtures.filter(f => f.date === date);
+    
+    return todayFixtures.map((f, i) => ({
+      id: `local-${dateStr}-${i}`,
+      name: `${f.away} at ${f.home}`,
+      date: `${f.date}T00:00:00Z`,
+      statusType: 'STATUS_SCHEDULED',
+      statusDesc: f.time,
+      statusState: 'pre',
+      clock: '',
+      homeTeam: f.home,
+      homeAbbr: f.home.substring(0, 3).toUpperCase(),
+      homeScore: 0,
+      awayTeam: f.away,
+      awayAbbr: f.away.substring(0, 3).toUpperCase(),
+      awayScore: 0,
+      venue: f.venue,
+      isLive: false,
+      isFinished: false,
+      source: 'Local DB'
+    }));
+  }
+
   async function fetchLiveMatches() {
     const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const sources = [];
+    
+    // Try ESPN first
     try {
-      const resp = await fetch(`${LMC_CONFIG.apiBase}/scoreboard?dates=${today}`, {
-        signal: AbortSignal.timeout(8000)
-      });
-      if (!resp.ok) return null;
-      const data = await resp.json();
-      
-      const matches = (data.events || []).slice(0, LMC_CONFIG.maxMatches).map(ev => {
-        const comp = ev.competitions?.[0] || {};
-        const status = comp.status || {};
-        const competitors = comp.competitors || [];
-        const home = competitors.find(c => c.homeAway === 'home') || {};
-        const away = competitors.find(c => c.homeAway === 'away') || {};
-        
-        return {
-          id: ev.id,
-          name: ev.name,
-          date: ev.date,
-          statusType: status.type?.name || 'STATUS_SCHEDULED',
-          statusDesc: status.type?.description || 'Scheduled',
-          statusState: status.type?.state || 'pre',
-          clock: status.displayClock || '',
-          homeTeam: home.team?.displayName || home.team?.shortDisplayName || 'TBD',
-          homeAbbr: home.team?.abbreviation || '',
-          homeScore: home.score ?? 0,
-          awayTeam: away.team?.displayName || away.team?.shortDisplayName || 'TBD',
-          awayAbbr: away.team?.abbreviation || '',
-          awayScore: away.score ?? 0,
-          venue: comp.venue?.fullName || '',
-          isLive: status.type?.state === 'in',
-          isFinished: status.type?.completed || false,
-        };
-      });
-      
-      return matches;
+      const espnData = await fetchFromESPN(today);
+      if (espnData && espnData.length > 0) {
+        sources.push({ name: 'ESPN', data: espnData });
+      }
     } catch (e) {
-      console.log('[LMC] Fetch failed:', e.message);
-      return null;
+      console.log('[LMC] ESPN unavailable, trying FIFA API...');
     }
+    
+    // Fallback to local data
+    if (sources.length === 0) {
+      try {
+        const localData = fetchFromLocal(today);
+        if (localData.length > 0) {
+          sources.push({ name: 'Local DB', data: localData });
+        }
+        console.log(`[LMC] Using local database — ${localData.length} matches today`);
+      } catch (e) {
+        console.log('[LMC] All sources failed:', e.message);
+      }
+    }
+    
+    if (sources.length === 0) return [];
+    
+    // Use data from first successful source
+    const source = sources[0];
+    console.log(`[LMC] Data source: ${source.name} (${source.data.length} matches)`);
+    return source.data;
   }
 
   // Render match cards
@@ -1993,6 +2045,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <div class="lmc-match-footer">
           <span class="lmc-venue">🏟 ${m.venue}</span>
+          <span class="lmc-source">${m.source || 'ESPN'}</span>
           <span class="lmc-expand-hint">Details ▾</span>
         </div>
         <div class="lmc-details" style="display:none">
