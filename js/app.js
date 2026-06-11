@@ -2265,8 +2265,71 @@ document.addEventListener('DOMContentLoaded', () => {
     window._hermes_fb_providers = STREAM_PROVIDERS;
   }
 
+  // ── Live Player Controls ──
+  const LP_PROVIDERS = {
+    cricfree:     { name: 'CricFree.live',     url: 'https://cricfree.live/' },
+    totalsportek: { name: 'TotalSportek',       url: 'https://totalsportek.pro/' },
+    footybite:    { name: 'FootyBite',          url: 'https://footybite.to/' },
+  };
+
+  let lpProviderIdx = 0;
+  const lpProviderKeys = Object.keys(LP_PROVIDERS);
+
+  function switchPlayerProvider(key) {
+    const provider = LP_PROVIDERS[key];
+    if (!provider) return;
+    const frame = document.getElementById('lpFrame');
+    const overlay = document.getElementById('lpOverlay');
+    if (frame) { frame.src = provider.url; }
+    if (overlay) overlay.style.display = 'none';
+    lpProviderIdx = lpProviderKeys.indexOf(key);
+    document.getElementById('lpLiveDot')?.classList.add('loading');
+    setTimeout(() => document.getElementById('lpLiveDot')?.classList.remove('loading'), 3000);
+  }
+
+  function nextPlayerProvider() {
+    lpProviderIdx = (lpProviderIdx + 1) % lpProviderKeys.length;
+    const key = lpProviderKeys[lpProviderIdx];
+    document.getElementById('lpProviderSelect').value = key;
+    switchPlayerProvider(key);
+  }
+
+  function openPlayerInTab() {
+    const key = document.getElementById('lpProviderSelect')?.value || 'cricfree';
+    const provider = LP_PROVIDERS[key];
+    if (provider) window.open(provider.url, '_blank', 'noopener,noreferrer');
+  }
+
+  function initLivePlayer() {
+    document.getElementById('lpProviderSelect')?.addEventListener('change', (e) => {
+      switchPlayerProvider(e.target.value);
+    });
+    document.getElementById('lpOpenBtn')?.addEventListener('click', openPlayerInTab);
+    document.getElementById('lpRetryBtn')?.addEventListener('click', nextPlayerProvider);
+
+    // Detect iframe load failure
+    const frame = document.getElementById('lpFrame');
+    if (frame) {
+      frame.addEventListener('error', () => {
+        document.getElementById('lpOverlay').style.display = 'flex';
+      });
+      // Also check after timeout if frame is blank
+      setTimeout(() => {
+        try {
+          const doc = frame.contentDocument || frame.contentWindow?.document;
+          if (!doc || doc.body?.innerHTML?.length < 50) {
+            // Frame might be empty due to block — keep showing, don't overlay
+          }
+        } catch(e) {
+          // Cross-origin — can't check, assume it loaded
+        }
+      }, 5000);
+    }
+  }
+
   // ── Init fallback system on Watch section load ──
   function initFallbackSystem() {
+    initLivePlayer();
     document.getElementById('fbNextBtn')?.addEventListener('click', switchToNextProvider);
     document.getElementById('fbDismissBtn')?.addEventListener('click', hideFallbackAlert);
     document.getElementById('lmcRefreshBtn')?.addEventListener('click', refreshMatchCenter);

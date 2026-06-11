@@ -342,6 +342,44 @@
       <p class="section-desc">Stream every match — 🇮🇳 Free sites in India + US broadcasters · All times in IST</p>
     </div>
 
+    <!-- Live Match Player -->
+    <div class="live-player-section" id="livePlayerSection">
+      <div class="lp-header">
+        <div class="lp-header-left">
+          <span class="lp-live-dot" id="lpLiveDot"></span>
+          <h3>📺 Live Match Player</h3>
+        </div>
+        <div class="lp-header-right">
+          <select class="lp-provider-select" id="lpProviderSelect">
+            <option value="cricfree">CricFree.live</option>
+            <option value="totalsportek">TotalSportek</option>
+            <option value="footybite">FootyBite</option>
+          </select>
+          <button class="btn btn-sm btn-primary" id="lpOpenBtn">🔗 Open in New Tab</button>
+        </div>
+      </div>
+      <div class="lp-player-wrap" id="lpPlayerWrap">
+        <iframe id="lpFrame" class="lp-frame" 
+          src="https://cricfree.live/" 
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+          allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+          loading="lazy"
+          title="Live Match Stream">
+        </iframe>
+        <div class="lp-overlay" id="lpOverlay" style="display:none">
+          <div class="lp-overlay-content">
+            <span class="lp-overlay-icon">🚫</span>
+            <p>This provider blocked embedding.</p>
+            <button class="btn btn-primary" id="lpRetryBtn">Try Next Provider</button>
+          </div>
+        </div>
+      </div>
+      <div class="lp-note">
+        <span>💡</span>
+        <span><strong>Embedded from third-party sites.</strong> Use provider switcher if one doesn't load. These are aggregator sites — navigate to find live match streams. <em>May contain ads. Use an ad-blocker.</em></span>
+      </div>
+    </div>
+
     <!-- Live Match Center -->
     <div class="live-match-center" id="liveMatchCenter">
       <div class="lmc-header">
