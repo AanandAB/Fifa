@@ -950,7 +950,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function buildBracket() {
     const wrapper = document.getElementById('bracketWrapper');
     if (!wrapper) return;
-    const ROW = 26, PAD = 18, COL_W = 150, CON_W = 40, TOTAL_SLOTS = 32, HEIGHT = PAD * 2 + TOTAL_SLOTS * ROW;
+    const ROW = 26, PAD = 18, COL_W = 150, CON_W = 40, TOTAL_SLOTS = 16, HEIGHT = PAD * 2 + TOTAL_SLOTS * ROW;
     function slotY(slot) { return PAD + slot * ROW; }
     function matchCenter(ri, mi) {
       const shift = Math.pow(2, ri) - 1;
@@ -958,10 +958,10 @@ document.addEventListener('DOMContentLoaded', () => {
       return (slotY(top) + slotY(top + 1)) / 2;
     }
     const roundData = [
-      { label: 'ROUND OF 32', abbr: 'R32', matches: 16 },
-      { label: 'ROUND OF 16', abbr: 'R16', matches: 8 },
-      { label: 'QUARTERFINALS', abbr: 'QF', matches: 4 },
-      { label: 'SEMIFINALS', abbr: 'SF', matches: 2 },
+      { label: 'ROUND OF 32', abbr: 'R32', matches: 8 },
+      { label: 'ROUND OF 16', abbr: 'R16', matches: 4 },
+      { label: 'QUARTERFINALS', abbr: 'QF', matches: 2 },
+      { label: 'SEMIFINALS', abbr: 'SF', matches: 1 },
       { label: 'FINAL', abbr: 'FIN', matches: 1 }
     ];
     function buildPath(label, sub) {
@@ -1028,6 +1028,196 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleBracketSlot(slot);
   });
 
+  // ══════════════════════════════════════════════════════════
+  //  LIVE BRACKET POPULATION — Fetch standings + auto-fill
+  // ══════════════════════════════════════════════════════════
+
+  // FIFA 2026 R32 bracket mapping: which group positions → which bracket slots
+  // Source: Wikipedia + FIFA official schedule
+  const BRACKET_MAP = [
+    // PATH A
+    {path:'A',slot:0, match:74, a:'1E', b:'3A/B/C/D/F'},
+    {path:'A',slot:1, match:77, a:'1I', b:'3C/D/F/G/H'},
+    {path:'A',slot:2, match:79, a:'1A', b:'3C/E/F/H/I'},
+    {path:'A',slot:3, match:81, a:'1D', b:'3B/E/F/I/J'},
+    {path:'A',slot:4, match:75, a:'1F', b:'2C'},
+    {path:'A',slot:5, match:76, a:'1C', b:'2F'},
+    {path:'A',slot:6, match:85, a:'1B', b:'3E/F/G/I/J'},
+    {path:'A',slot:7, match:87, a:'1K', b:'3D/E/I/J/L'},
+    // PATH B
+    {path:'B',slot:0, match:73, a:'2A', b:'2B'},
+    {path:'B',slot:1, match:78, a:'2E', b:'2I'},
+    {path:'B',slot:2, match:80, a:'1L', b:'3E/H/I/J/K'},
+    {path:'B',slot:3, match:82, a:'1G', b:'3A/E/H/I/J'},
+    {path:'B',slot:4, match:84, a:'1H', b:'2J'},
+    {path:'B',slot:5, match:86, a:'1J', b:'2H'},
+    {path:'B',slot:6, match:83, a:'2K', b:'2L'},
+    {path:'B',slot:7, match:88, a:'2D', b:'2G'},
+  ];
+
+  // Fetch live group standings from ESPN API
+  async function fetchGroupStandings() {
+    try {
+      const resp = await fetch('https://site.web.api.espn.com/apis/site/v2/sports/soccer/FIFA.WORLD/standings', {
+        signal: AbortSignal.timeout(10000)
+      });
+      if (!resp.ok) return null;
+      const data = await resp.json();
+      
+      const groups = {};
+      for (const child of data.children || []) {
+        const groupName = child.name || '';
+        const entries = child.standings?.entries || [];
+        groups[groupName] = entries.map(e => ({
+          team: e.team?.displayName || e.team?.shortDisplayName || '',
+          abbr: e.team?.abbreviation || '',
+          pts: parseInt(e.stats?.find(s => s.name === 'points')?.value || 0),
+          gp:  parseInt(e.stats?.find(s => s.name === 'gamesPlayed')?.value || 0),
+          gd:  parseInt(e.stats?.find(s => s.name === 'pointDifferential')?.value || 0),
+          gs:  parseInt(e.stats?.find(s => s.name === 'goalsFor')?.value || 0),
+          rank: parseInt(e.stats?.find(s => s.name === 'rank')?.value || 99),
+        }));
+      }
+      return Object.keys(groups).length > 0 ? groups : null;
+    } catch (e) {
+      console.log('[FIFA2026] Standings fetch failed:', e.message);
+      return null;
+    }
+  }
+
+  // Determine which teams advance from group standings
+  function calculateAdvancingTeams(groups) {
+    const groupOrder = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+    const winners = {}, runnersUp = {}, thirdPlace = [];
+    
+    for (const g of groupOrder) {
+      const standings = groups[`Group ${g}`] || groups[g] || [];
+      if (standings.length >= 2) {
+        winners[g] = standings[0];
+        runnersUp[g] = standings[1];
+      }
+      if (standings.length >= 3) {
+        thirdPlace.push({ ...standings[2], group: g });
+      }
+    }
+    
+    // Sort 3rd place teams by pts, gd, gs
+    thirdPlace.sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.gs - a.gs);
+    const bestThirds = thirdPlace.slice(0, 8);
+    
+    return { winners, runnersUp, bestThirds };
+  }
+
+  // Map advancing teams to bracket slots
+  function mapTeamsToBracket(advancing, groups) {
+    const { winners, runnersUp, bestThirds } = advancing;
+    // Sort third place by their group letter to match FIFA's bracket order
+    const sortedThirds = [...bestThirds].sort((a, b) => a.group.localeCompare(b.group));
+    
+    function getTeam(code) {
+      // Parse codes like '1E' (winner Group E), '2A' (runner-up A), '3C/D/F' (best 3rd from C/D/F)
+      if (code.startsWith('1')) {
+        const g = code.substring(1);
+        return winners[g] || null;
+      }
+      if (code.startsWith('2')) {
+        const g = code.substring(1);
+        return runnersUp[g] || null;
+      }
+      if (code.startsWith('3')) {
+        // Best 3rd place from specified groups
+        const groups = code.substring(1).split('/');
+        // Find the highest-ranked 3rd place from these groups
+        for (const g of groups) {
+          const match = bestThirds.find(t => t.group === g);
+          if (match) return match;
+        }
+        return null;
+      }
+      return null;
+    }
+    
+    const bracketTeams = {};
+    for (const m of BRACKET_MAP) {
+      const key = `${m.path}_${m.slot}`;
+      bracketTeams[key] = {
+        top: getTeam(m.a),
+        bottom: getTeam(m.b),
+        match: m.match,
+        desc: `${m.a} vs ${m.b}`
+      };
+    }
+    return bracketTeams;
+  }
+
+  // Populate bracket UI with team names
+  function populateBracketUI(bracketTeams) {
+    // Map team names to flag emojis
+    const TEAM_FLAG_MAP = {};
+    TEAMS.forEach(t => { TEAM_FLAG_MAP[t.name] = t.flag; });
+    
+    for (const [key, data] of Object.entries(bracketTeams)) {
+      const [path, slotStr] = key.split('_');
+      const slot = parseInt(slotStr);
+      
+      // Find the bracket match element
+      // Path A slots are first 8, Path B are next 8 in the DOM
+      const allPaths = document.querySelectorAll('.bp');
+      const pathIndex = path === 'A' ? 0 : 1;
+      const pathEl = allPaths[pathIndex];
+      if (!pathEl) continue;
+      
+      // Find the R32 column (first .bc in this path)
+      const bcEls = pathEl.querySelectorAll('.bc');
+      const r32Col = bcEls[0];
+      if (!r32Col) continue;
+      
+      // Find the match slots
+      const bmEls = r32Col.querySelectorAll('.bm');
+      const bmEl = bmEls[slot];
+      if (!bmEl) continue;
+      
+      const topSlot = bmEl.querySelector('.bm-team:first-child');
+      const bottomSlot = bmEl.querySelector('.bm-team.bm-bottom');
+      
+      if (data.top && topSlot) {
+        const flag = TEAM_FLAG_MAP[data.top.team] || '';
+        topSlot.innerHTML = `${flag} ${data.top.abbr || data.top.team}`;
+        topSlot.title = `${data.top.team} — ${data.desc}`;
+      }
+      if (data.bottom && bottomSlot) {
+        const flag = TEAM_FLAG_MAP[data.bottom.team] || '';
+        bottomSlot.innerHTML = `${flag} ${data.bottom.abbr || data.bottom.team}`;
+        bottomSlot.title = `${data.bottom.team} — ${data.desc}`;
+      }
+    }
+  }
+
+  // Main function: fetch standings and populate bracket
+  async function refreshBracket() {
+    const groups = await fetchGroupStandings();
+    if (!groups) {
+      console.log('[FIFA2026] No standings data yet — group stage in progress');
+      return false;
+    }
+    
+    const advancing = calculateAdvancingTeams(groups);
+    const bracketTeams = mapTeamsToBracket(advancing, groups);
+    populateBracketUI(bracketTeams);
+    
+    console.log('[FIFA2026] Bracket populated from live standings');
+    return true;
+  }
+
+  // Hook into bracket build: auto-refresh after building
+  const origBuildBracket = buildBracket;
+  buildBracket = function() {
+    origBuildBracket();
+    // Auto-fetch standings after bracket renders
+    setTimeout(refreshBracket, 500);
+  };
+
+  // Keyboard support for bracket
   document.addEventListener('keydown', (e) => {
     const slot = e.target.closest('.bm-team');
     if (!slot) return;
