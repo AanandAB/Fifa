@@ -2265,42 +2265,11 @@ document.addEventListener('DOMContentLoaded', () => {
     window._hermes_fb_providers = STREAM_PROVIDERS;
   }
 
-  // ── YouTube Live Player Controls ──
-  const YT_LIVE_CHANNELS = {
-    fifa:         { name: 'FIFA Official',      channelId: 'UCpcTrCXblq78GZrTUTLWeBw', url: 'https://www.youtube.com/fifa' },
-    france24:     { name: 'FRANCE 24 (English)', channelId: 'UCQfwfsi5VrQ8yKZ-UWmAEFg', url: 'https://www.youtube.com/france24' },
-    moneycontrol: { name: 'Moneycontrol (India)', channelId: 'UChsrEqRr8iWQg4moygZq7fg', url: 'https://www.youtube.com/@moneycontrol' },
-    firstpost:    { name: 'Firstpost (India)',   channelId: 'UCzF4Rj02GmBqOi7Nh3aZ6Sg', url: 'https://www.youtube.com/@Firstpost' },
-    wion:         { name: 'WION (India)',        channelId: 'UC_gDch5RVM8lXjfl9yDUcNQ', url: 'https://www.youtube.com/@WION' },
-  };
-
-  function switchYTLiveChannel(key) {
-    const ch = YT_LIVE_CHANNELS[key];
-    if (!ch) return;
-    const frame = document.getElementById('ytLiveFrame');
-    if (frame) {
-      frame.src = `https://www.youtube.com/embed/live_stream?channel=${ch.channelId}&autoplay=0&rel=0&modestbranding=1`;
-    }
-    document.getElementById('ytLiveDot')?.classList.add('loading');
-    setTimeout(() => document.getElementById('ytLiveDot')?.classList.remove('loading'), 3000);
-  }
-
-  function openYTLiveInTab() {
-    const key = document.getElementById('ytLiveSelect')?.value || 'fifa';
-    const ch = YT_LIVE_CHANNELS[key];
-    if (ch) window.open(ch.url, '_blank', 'noopener,noreferrer');
-  }
-
-  function initLivePlayer() {
-    document.getElementById('ytLiveSelect')?.addEventListener('change', (e) => {
-      switchYTLiveChannel(e.target.value);
-    });
-    document.getElementById('ytLiveTabBtn')?.addEventListener('click', openYTLiveInTab);
-  }
+  // ── YouTube Live Player — search-based, always shows videos ──
+  // Uses inline onclick buttons (HTML) — no JS needed
 
   // ── Init fallback system on Watch section load ──
   function initFallbackSystem() {
-    initLivePlayer();
     document.getElementById('fbNextBtn')?.addEventListener('click', switchToNextProvider);
     document.getElementById('fbDismissBtn')?.addEventListener('click', hideFallbackAlert);
     document.getElementById('lmcRefreshBtn')?.addEventListener('click', refreshMatchCenter);

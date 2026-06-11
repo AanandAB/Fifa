@@ -342,36 +342,32 @@
       <p class="section-desc">Stream every match — 🇮🇳 Free sites in India + US broadcasters · All times in IST</p>
     </div>
 
-    <!-- YouTube Live Player -->
+    <!-- YouTube Live Match Player -->
     <div class="yt-live-section" id="ytLiveSection">
       <div class="yt-live-header">
         <div class="yt-live-header-left">
           <span class="yt-live-dot" id="ytLiveDot"></span>
-          <h3>📺 YouTube Live — World Cup 2026</h3>
+          <h3>📺 Live Match Streams — YouTube</h3>
         </div>
         <div class="yt-live-header-right">
-          <select class="yt-live-select" id="ytLiveSelect">
-            <option value="fifa">FIFA Official</option>
-            <option value="france24">FRANCE 24 (English)</option>
-            <option value="moneycontrol">Moneycontrol (India)</option>
-            <option value="firstpost">Firstpost (India)</option>
-            <option value="wion">WION (India)</option>
-          </select>
-          <button class="btn btn-sm btn-primary" id="ytLiveTabBtn">🔗 Open in YouTube</button>
+          <button class="btn btn-sm" id="ytSearchBtn1" onclick="document.getElementById('ytLiveFrame').src='https://www.youtube.com/embed?listType=search&list=FIFA+World+Cup+2026+live+match&autoplay=0&rel=0&modestbranding=1'">⚽ Match Streams</button>
+          <button class="btn btn-sm" id="ytSearchBtn2" onclick="document.getElementById('ytLiveFrame').src='https://www.youtube.com/embed?listType=search&list=FIFA+World+Cup+2026+live+stream+India&autoplay=0&rel=0&modestbranding=1'">🇮🇳 India Streams</button>
+          <button class="btn btn-sm" id="ytSearchBtn3" onclick="document.getElementById('ytLiveFrame').src='https://www.youtube.com/embed?listType=search&list=FIFA+World+Cup+2026+live+analysis&autoplay=0&rel=0&modestbranding=1'">🎙️ Analysis</button>
+          <button class="btn btn-sm btn-primary" onclick="window.open('https://www.youtube.com/results?search_query=FIFA+World+Cup+2026+live&sp=EgJAAQ%253D%253D','_blank')">🔗 Open in YouTube</button>
         </div>
       </div>
       <div class="yt-live-player-wrap">
         <iframe id="ytLiveFrame" class="yt-live-frame"
-          src="https://www.youtube.com/embed/live_stream?channel=UCpcTrCXblq78GZrTUTLWeBw&autoplay=0&rel=0&modestbranding=1"
+          src="https://www.youtube.com/embed?listType=search&list=FIFA+World+Cup+2026+live+match&autoplay=0&rel=0&modestbranding=1"
           frameborder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowfullscreen
-          title="YouTube Live Stream">
+          title="YouTube Live Streams">
         </iframe>
       </div>
       <div class="yt-live-note">
         <span>💡</span>
-        <span><strong>Official YouTube live streams.</strong> Switch channels above to find coverage. <em>FRANCE 24, Moneycontrol, WION stream pre-match & live analysis. FIFA Official for highlights & ceremonies.</em></span>
+        <span><strong>Live match streams from YouTube.</strong> Click <strong>⚽ Match Streams</strong> for live games, <strong>🇮🇳 India Streams</strong> for Indian coverage, or <strong>🎙️ Analysis</strong> for pre/post-match shows. <em>Uses YouTube search — always shows available videos. Click a video thumbnail to play.</em></span>
       </div>
     </div>
 
