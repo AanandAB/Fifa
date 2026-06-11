@@ -3,10 +3,10 @@ const GROUPS = {
     name: "Group A",
     teams: ["Mexico", "South Africa", "South Korea", "Czechia"],
     fixtures: [
-      { home: "Mexico", away: "South Africa", date: "2026-06-11", time: "15:00 ET", venue: "Estadio Azteca, Mexico City" },
-      { home: "South Korea", away: "Czechia", date: "2026-06-11", time: "22:00 ET", venue: "Estadio Akron, Zapopan" },
-      { home: "Mexico", away: "Czechia", date: "2026-06-15", time: "18:00 ET", venue: "Estadio Azteca, Mexico City" },
-      { home: "South Africa", away: "South Korea", date: "2026-06-15", time: "21:00 ET", venue: "Estadio BBVA, Monterrey" },
+      { home: "Mexico", away: "South Africa", date: "2026-06-11", time: "00:30 IST (Jun 12)", venue: "Estadio Azteca, Mexico City" },
+      { home: "South Korea", away: "Czechia", date: "2026-06-11", time: "07:30 IST (Jun 12)", venue: "Estadio Akron, Zapopan" },
+      { home: "Mexico", away: "Czechia", date: "2026-06-15", time: "03:30 IST (Jun 16)", venue: "Estadio Azteca, Mexico City" },
+      { home: "South Africa", away: "South Korea", date: "2026-06-15", time: "06:30 IST (Jun 16)", venue: "Estadio BBVA, Monterrey" },
       { home: "Mexico", away: "South Korea", date: "2026-06-19", time: "TBD", venue: "Estadio Azteca, Mexico City" },
       { home: "Czechia", away: "South Africa", date: "2026-06-19", time: "TBD", venue: "Estadio Akron, Zapopan" }
     ]
@@ -39,7 +39,7 @@ const GROUPS = {
     name: "Group D",
     teams: ["United States", "Paraguay", "Australia", "Türkiye"],
     fixtures: [
-      { home: "United States", away: "Paraguay", date: "2026-06-12", time: "15:00 ET", venue: "SoFi Stadium, Los Angeles" },
+      { home: "United States", away: "Paraguay", date: "2026-06-12", time: "00:30 IST (Jun 13)", venue: "SoFi Stadium, Los Angeles" },
       { home: "Australia", away: "Türkiye", date: "2026-06-12", time: "TBD", venue: "Lumen Field, Seattle" },
       { home: "United States", away: "Australia", date: "2026-06-19", time: "TBD", venue: "Lumen Field, Seattle" },
       { home: "Paraguay", away: "Türkiye", date: "2026-06-19", time: "TBD", venue: "MetLife Stadium, New York" },

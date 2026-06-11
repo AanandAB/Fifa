@@ -339,122 +339,91 @@
   <section class="section" id="watch" aria-label="Watch Live">
     <div class="section-header">
       <h2 class="section-title">📺 Watch Live</h2>
-      <p class="section-desc">Stream every match — US broadcasters + free streaming via Tailscale</p>
+      <p class="section-desc">Stream every match — 🇮🇳 Free sites in India + US broadcasters · All times in IST</p>
     </div>
 
-    <!-- Stream Player -->
-    <div class="stream-player-section">
-      <div class="stream-player-wrap" id="streamPlayerWrap">
-        <div class="stream-placeholder" id="streamPlaceholder">
-          <div class="stream-placeholder-icon">📡</div>
-          <div class="stream-placeholder-title">Stream Not Connected</div>
-          <div class="stream-placeholder-desc" id="streamPlaceholderDesc">Start Tailscale and connect your US node to begin streaming</div>
-          <button class="btn btn-primary" id="streamConnectBtn">🔗 Connect Stream</button>
-        </div>
-        <video id="streamVideo" class="stream-video" controls autoplay playsinline muted style="display:none"></video>
-        <div class="stream-controls" id="streamControls">
-          <div class="stream-control-left">
-            <span class="stream-live-badge" id="streamLiveBadge">
-              <span class="stream-live-dot"></span> LIVE
-            </span>
-            <span class="stream-bitrate" id="streamBitrate">-- Kbps</span>
-          </div>
-          <div class="stream-control-right">
-            <button class="stream-ctrl-btn" id="streamFullscreen" title="Fullscreen">⛶</button>
-            <button class="stream-ctrl-btn" id="streamRefresh" title="Refresh Stream">🔄</button>
-            <button class="stream-ctrl-btn" id="streamDisconnect" title="Disconnect">⏹</button>
-          </div>
-        </div>
+    <!-- Fallback Providers Panel -->
+    <div class="fallback-providers-panel">
+      <div class="fb-panel-header">
+        <span class="fb-panel-icon">🔀</span>
+        <h3>Quick-Switch Stream Providers</h3>
+        <span class="fb-panel-badge">Click any to watch — try next if lagging</span>
       </div>
-
-      <!-- Stream Info Bar -->
-      <div class="stream-info-bar" id="streamInfoBar">
-        <div class="stream-info-item">
-          <span class="stream-info-label">Tailscale</span>
-          <span class="stream-info-value" id="tsStatusValue">Checking...</span>
-        </div>
-        <div class="stream-info-item">
-          <span class="stream-info-label">US Node</span>
-          <span class="stream-info-value" id="usNodeValue">--</span>
-        </div>
-        <div class="stream-info-item">
-          <span class="stream-info-label">Latency</span>
-          <span class="stream-info-value" id="latencyValue">-- ms</span>
-        </div>
-        <div class="stream-info-item">
-          <span class="stream-info-label">Stream</span>
-          <span class="stream-info-value" id="streamStateValue">Disconnected</span>
-        </div>
+      <div class="fallback-providers-grid" id="fallbackProvidersGrid"></div>
+      <div class="fb-panel-note">
+        <span>💡</span>
+        <span><strong>How it works:</strong> Click any provider below to open their live stream page. If one lags or buffers, click a different provider. <em>All external sites — opens in a new tab.</em> Bookmark 2-3 favorites for quick switching during matches.</span>
       </div>
     </div>
 
     <div class="watch-grid">
-      <!-- US Broadcasters -->
-      <div class="watch-card broadcasters">
+      <!-- Free Streaming Sites in India -->
+      <div class="watch-card streaming-sites" style="grid-column: 1 / -1;">
         <div class="watch-card-header">
-          <span class="watch-icon">📡</span>
-          <h3>US Broadcasters</h3>
+          <span class="watch-icon">🇮🇳</span>
+          <h3>Free Streaming Sites in India</h3>
+          <span class="stream-badge free">NO VPN NEEDED</span>
         </div>
-        <p class="watch-desc">Official English & Spanish rights holders for all 104 matches</p>
-        <div class="broadcaster-list">
-          <div class="broadcaster-item">
-            <span class="bnet-logo">🦊</span>
-            <div><strong>Fox / Fox Sports</strong><br><span>English · Over-the-air + Cable</span></div>
-          </div>
-          <div class="broadcaster-item">
-            <span class="bnet-logo">📺</span>
-            <div><strong>Telemundo / NBCUniversal</strong><br><span>Spanish · Over-the-air + Peacock</span></div>
-          </div>
-          <div class="broadcaster-item">
-            <span class="bnet-logo">▶️</span>
-            <div><strong>YouTube</strong><br><span>First 10 min of every match free + select full matches</span></div>
-          </div>
-          <div class="broadcaster-item">
-            <span class="bnet-logo">🎵</span>
-            <div><strong>TikTok</strong><br><span>Match clips, highlights & behind-the-scenes</span></div>
-          </div>
+        <p class="watch-desc">Watch FIFA World Cup 2026 matches for free on these sites — no subscription required</p>
+        <div class="streaming-sites-grid">
+          <a href="https://www.epicsports.in/" target="_blank" rel="noopener noreferrer" class="streaming-site-card">
+            <div class="ss-icon">⚽</div>
+            <div class="ss-info">
+              <strong>EpicSports.in</strong>
+              <span>Match previews + live telecast links · WhatsApp/Telegram groups for streaming</span>
+              <span class="ss-tag live">🔴 LIVE LINKS</span>
+            </div>
+            <span class="ss-arrow">→</span>
+          </a>
+          <a href="https://live.epicsportss.com/" target="_blank" rel="noopener noreferrer" class="streaming-site-card">
+            <div class="ss-icon">📡</div>
+            <div class="ss-info">
+              <strong>EpicSports Live</strong>
+              <span>Dedicated match pages with live telecast info · Times in IST</span>
+              <span class="ss-tag ist">🕐 IST TIMES</span>
+            </div>
+            <span class="ss-arrow">→</span>
+          </a>
+          <a href="https://cricfree.live/" target="_blank" rel="noopener noreferrer" class="streaming-site-card">
+            <div class="ss-icon">🏏</div>
+            <div class="ss-info">
+              <strong>CricFree.live</strong>
+              <span>Sports streaming aggregator · Football, Cricket & more</span>
+              <span class="ss-tag free">FREE</span>
+            </div>
+            <span class="ss-arrow">→</span>
+          </a>
+          <a href="https://totalsportek.pro/" target="_blank" rel="noopener noreferrer" class="streaming-site-card">
+            <div class="ss-icon">🎯</div>
+            <div class="ss-info">
+              <strong>TotalSportek</strong>
+              <span>Football streaming links · Match threads with multiple sources</span>
+              <span class="ss-tag free">FREE</span>
+            </div>
+            <span class="ss-arrow">→</span>
+          </a>
+          <a href="https://sportsurge.net/" target="_blank" rel="noopener noreferrer" class="streaming-site-card">
+            <div class="ss-icon">📺</div>
+            <div class="ss-info">
+              <strong>Sportsurge</strong>
+              <span>Clean, ad-light streaming links · Reliable HD streams</span>
+              <span class="ss-tag hd">HD</span>
+            </div>
+            <span class="ss-arrow">→</span>
+          </a>
+          <a href="https://footybite.to/" target="_blank" rel="noopener noreferrer" class="streaming-site-card">
+            <div class="ss-icon">🍿</div>
+            <div class="ss-info">
+              <strong>FootyBite</strong>
+              <span>Reddit-sourced streaming · Community-voted best links</span>
+              <span class="ss-tag free">FREE</span>
+            </div>
+            <span class="ss-arrow">→</span>
+          </a>
         </div>
-      </div>
-
-      <!-- Tailscale Controls -->
-      <div class="watch-card tailscale" id="tailscaleCard">
-        <div class="watch-card-header">
-          <span class="watch-icon">🔗</span>
-          <h3>Tailscale Network</h3>
-          <span class="stream-status offline" id="streamStatus">Checking...</span>
-        </div>
-        <div class="tailscale-diagram" id="tailscaleDiagram">
-          <div class="ts-node ts-us" id="tsUsNode">
-            <span class="ts-flag">🇺🇸</span>
-            <span class="ts-label">US Node</span>
-            <span class="ts-ip" id="tsUsIP">--</span>
-          </div>
-          <div class="ts-arrow">⟶</div>
-          <div class="ts-node ts-cloud">
-            <span class="ts-icon">☁️</span>
-            <span class="ts-label">Tailscale</span>
-            <span class="ts-ip">WireGuard</span>
-          </div>
-          <div class="ts-arrow">⟶</div>
-          <div class="ts-node ts-in" id="tsInNode">
-            <span class="ts-flag">🇮🇳</span>
-            <span class="ts-label">You</span>
-            <span class="ts-ip" id="tsInIP">--</span>
-          </div>
-        </div>
-        <div class="tailscale-actions">
-          <button class="btn btn-primary btn-sm" id="tsScanBtn">🔍 Scan Network</button>
-          <button class="btn btn-secondary btn-sm" id="tsPingBtn">📶 Ping US Node</button>
-          <input type="text" class="ts-ip-input" id="tsUsInput" placeholder="US Node TS IP (100.x.x.x)" value="">
-        </div>
-        <div class="tailscale-steps">
-          <div class="ts-step active" id="tsStep1"><span class="ts-step-num">1</span><span class="ts-step-text">Install Tailscale on both machines</span><span class="ts-step-check">✓</span></div>
-          <div class="ts-step" id="tsStep2"><span class="ts-step-num">2</span><span class="ts-step-text">Both connected to same tailnet</span><span class="ts-step-check">✓</span></div>
-          <div class="ts-step" id="tsStep3"><span class="ts-step-num">3</span><span class="ts-step-text">US node streaming on port <code>:8080</code></span><span class="ts-step-check">✓</span></div>
-          <div class="ts-step" id="tsStep4"><span class="ts-step-num">4</span><span class="ts-step-text">Stream accessible via Tailscale IP</span><span class="ts-step-check">✓</span></div>
-        </div>
-        <div class="tailscale-note" id="tailscaleNote">
-          <span>💡</span> <span id="tailscaleNoteText">Click <strong>Scan Network</strong> to auto-detect your Tailscale setup and US streaming node.</span>
+        <div class="streaming-note">
+          <span>💡</span>
+          <span><strong>Pro tip:</strong> Bookmark these sites. Match links go live 15-30 min before kickoff. Use an ad-blocker for best experience. <em>These are third-party sites — use at your own discretion.</em></span>
         </div>
       </div>
 
@@ -467,27 +436,27 @@
         <div class="watch-schedule" id="watchSchedule">
           <div class="watch-match">
             <div class="wmatch-teams"><span class="flag-emoji">🇲🇽</span> Mexico vs South Africa <span class="flag-emoji">🇿🇦</span></div>
-            <div class="wmatch-info">June 11 · 15:00 ET · Fox / Telemundo</div>
+            <div class="wmatch-info">June 11 · <strong>00:30 IST</strong> · Fox / Telemundo <small>(15:00 ET)</small></div>
             <span class="wmatch-badge free">FREE OTA</span>
           </div>
           <div class="watch-match">
             <div class="wmatch-teams"><span class="flag-emoji">🇺🇸</span> USA vs Paraguay <span class="flag-emoji">🇵🇾</span></div>
-            <div class="wmatch-info">June 12 · 15:00 ET · Fox</div>
+            <div class="wmatch-info">June 12 · <strong>00:30 IST</strong> · Fox <small>(15:00 ET)</small></div>
             <span class="wmatch-badge free">FREE OTA</span>
           </div>
           <div class="watch-match">
             <div class="wmatch-teams"><span class="flag-emoji">🇧🇷</span> Brazil vs Morocco <span class="flag-emoji">🇲🇦</span></div>
-            <div class="wmatch-info">June 13 · TBD · Fox Sports</div>
+            <div class="wmatch-info">June 13 · <strong>TBD</strong> · Fox Sports <small>(IST)</small></div>
             <span class="wmatch-badge cable">CABLE</span>
           </div>
           <div class="watch-match">
             <div class="wmatch-teams"><span class="flag-emoji">🇦🇷</span> Argentina vs Algeria <span class="flag-emoji">🇩🇿</span></div>
-            <div class="wmatch-info">June 16 · TBD · Fox</div>
+            <div class="wmatch-info">June 16 · <strong>TBD</strong> · Fox <small>(IST)</small></div>
             <span class="wmatch-badge free">FREE OTA</span>
           </div>
           <div class="watch-match">
             <div class="wmatch-teams"><span class="flag-emoji">🇫🇷</span> France vs Senegal <span class="flag-emoji">🇸🇳</span></div>
-            <div class="wmatch-info">June 16 · TBD · Fox Sports</div>
+            <div class="wmatch-info">June 16 · <strong>TBD</strong> · Fox Sports <small>(IST)</small></div>
             <span class="wmatch-badge cable">CABLE</span>
           </div>
         </div>
@@ -562,7 +531,7 @@
       <span class="logo-text">FIFA<span class="gold">2026</span></span>
     </div>
     <p class="footer-text">Not affiliated with FIFA. Built for fans.</p>
-    <p class="footer-credit">Sources: FIFA.com · ESPN · BBC Sport</p>
+    <p class="footer-credit">Sources: FIFA.com · ESPN · BBC Sport · All times in IST (UTC+5:30)</p>
     <p class="footer-updated" id="footerUpdated">Last updated: —</p>
   </div>
 </footer>

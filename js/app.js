@@ -33,6 +33,32 @@ document.addEventListener('DOMContentLoaded', () => {
   const DBG = (msg, data) => { if (window.console) console.log(`[FIFA2026] ${msg}`, data || ''); };
 
   // ══════════════════════════════════════════════════════════
+  //  TIME CONVERSION: ET → IST  (+9h 30m)
+  // ══════════════════════════════════════════════════════════
+
+  function etToIST(timeStr) {
+    if (!timeStr || timeStr === 'TBD' || timeStr === 'LIVE') return timeStr;
+    const m = timeStr.match(/(\d{1,2}):(\d{2})\s*ET/i);
+    if (!m) return timeStr;
+    let h = parseInt(m[1]), min = m[2];
+    h += 9;  // ET → IST: +9h 30m
+    let extraMins = 30;
+    let mins = parseInt(min) + extraMins;
+    if (mins >= 60) { h += 1; mins -= 60; }
+    const nextDay = h >= 24;
+    h = h % 24;
+    const ist = `${String(h).padStart(2,'0')}:${String(mins).padStart(2,'0')} IST`;
+    return ist;
+  }
+
+  function formatTimeIST(timeStr) {
+    const ist = etToIST(timeStr);
+    if (!ist || ist === 'TBD' || ist === 'LIVE') return ist;
+    if (ist.includes('IST')) return ist;
+    return ist;
+  }
+
+  // ══════════════════════════════════════════════════════════
   //  LENIS — BUTTERY SMOOTH SCROLLING
   // ══════════════════════════════════════════════════════════
 
@@ -351,7 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateBroadcastClock() {
     const el = document.getElementById('broadcastClock');
-    if (el) el.textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    if (el) el.textContent = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true, timeZone: 'Asia/Kolkata' }) + ' IST';
   }
   updateBroadcastClock();
   setInterval(updateBroadcastClock, 1000);
@@ -378,7 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (bLiveDot) bLiveDot.classList.toggle('offline', !online);
     if (bLiveLabel) bLiveLabel.textContent = online ? 'LIVE DATA' : 'OFFLINE';
     if (broadcastCenter) broadcastCenter.textContent = online ? `● LIVE · ${source || 'API'}` : 'USA · CANADA · MEXICO';
-    if (footerUpdated) footerUpdated.textContent = `Last updated: ${liveStatus.lastUpdated.toLocaleTimeString()} · Source: ${source || 'local database'}`;
+    if (footerUpdated) footerUpdated.textContent = `Last updated: ${liveStatus.lastUpdated.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', hour12:true, timeZone:'Asia/Kolkata' })} IST · Source: ${source || 'local database'}`;
     DATA_SOURCE.api = online;
     DATA_SOURCE.local = !online;
   }
@@ -712,6 +738,7 @@ document.addEventListener('DOMContentLoaded', () => {
       target.classList.add('active');
       target.style.display = '';
       if (id === 'bracket') { setTimeout(buildBracket, 100); setTimeout(restoreBracketPicksUI, 300); }
+      if (id === 'watch') setTimeout(initFallbackSystem, 100);
       if (id === 'stats' && typeof Chart !== 'undefined') setTimeout(initCharts, 100);
     }
     navLinks.forEach(a => { a.classList.toggle('active', a.dataset.section === id); if (a.dataset.section === id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
@@ -797,7 +824,7 @@ document.addEventListener('DOMContentLoaded', () => {
     el.innerHTML = `
       <div class="hmd-badge">⚽ OPENING MATCH</div>
       <div class="hmd-teams"><span class="hmd-team">${getFlag('Mexico', 22)} Mexico</span><span class="hmd-vs">vs</span><span class="hmd-team">South Africa ${getFlag('South Africa', 22)}</span></div>
-      <div class="hmd-meta">Estadio Azteca · June 11 · 15:00 ET</div>
+      <div class="hmd-meta">Estadio Azteca · June 11 · <span class="ist-time">00:30 IST</span> <span class="et-note">(15:00 ET)</span></div>
     `;
   }
   renderHeroMatchDay();
@@ -848,10 +875,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let html = '';
     sortedDates.forEach(date => {
       const d = new Date(date + 'T12:00:00Z');
-      html += `<div class="fixture-date-header">${d.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' })}</div>`;
+      html += `<div class="fixture-date-header">${d.toLocaleDateString('en-IN', { weekday:'long', month:'long', day:'numeric', year:'numeric', timeZone:'Asia/Kolkata' })}</div>`;
       grouped[date].forEach((f, i) => {
         const statusClass = f.statusText.includes('Live') ? 'live' : f.statusText === 'FT' ? 'ft' : '';
-        html += `<div class="match-card ${statusClass}" style="animation-delay:${(i%8)*60}ms"><div class="match-team home">${getFlagMedium(f.home)}<span>${f.home}</span></div><div class="match-score">${f.scoreDisplay}</div><div class="match-team away"><span>${f.away}</span>${getFlagMedium(f.away)}</div><div class="match-meta"><span class="group-badge">${f.group}</span><span class="time">${f.time}</span><span class="venue">${f.venue}</span><span class="match-status ${statusClass}">${f.statusText}</span></div></div>`;
+        const dispTime = etToIST(f.time);  const timeHTML = dispTime === 'TBD' ? '<span class="time">TBD</span>' : (f.time === dispTime ? `<span class="time">${f.time}</span>` : `<span class="time ist-time">${dispTime}</span> <span class="et-note">(${f.time})</span>`);  html += `<div class="match-card ${statusClass}" style="animation-delay:${(i%8)*60}ms"><div class="match-team home">${getFlagMedium(f.home)}<span>${f.home}</span></div><div class="match-score">${f.scoreDisplay}</div><div class="match-team away"><span>${f.away}</span>${getFlagMedium(f.away)}</div><div class="match-meta"><span class="group-badge">${f.group}</span>${timeHTML}<span class="venue">${f.venue}</span><span class="match-status ${statusClass}">${f.statusText}</span></div></div>`;
       });
     });
     container.innerHTML = html;
@@ -1660,369 +1687,125 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   initFormationViewer();
 
-  // ══════════════════════════════════════════════════════════
-  //  TAILSCALE STREAM ENGINE — Auto-Detect, Connect, Monitor
-  // ══════════════════════════════════════════════════════════
+  // ── Free Stream Providers (click to open in new tab) ──
+  const STREAM_PROVIDERS = [
+    { id: 'epicsports', name: 'EpicSports.in',       icon: '⚽', url: 'https://www.epicsports.in/',     type: 'external', tag: 'RECOMMENDED', tagClass: 'live' },
+    { id: 'epicsports2',name: 'EpicSports Live',      icon: '📡', url: 'https://live.epicsportss.com/',  type: 'external', tag: 'IST TIMES', tagClass: 'ist' },
+    { id: 'cricfree',   name: 'CricFree.live',        icon: '🏏', url: 'https://cricfree.live/',         type: 'external', tag: 'HD', tagClass: 'hd' },
+    { id: 'totalsportek',name:'TotalSportek',         icon: '🎯', url: 'https://totalsportek.pro/',      type: 'external', tag: 'MULTI-SOURCE', tagClass: 'free' },
+    { id: 'sportsurge', name: 'Sportsurge',           icon: '📺', url: 'https://sportsurge.net/',         type: 'external', tag: 'AD-LIGHT', tagClass: 'hd' },
+    { id: 'footybite',  name: 'FootyBite',            icon: '🍿', url: 'https://footybite.to/',           type: 'external', tag: 'COMMUNITY', tagClass: 'free' }
+  ];
 
-  const TS_CONFIG = {
-    // Tailscale magic DNS / local API
-    tsApiBase: 'http://100.100.100.100/localapi/v0',
-    // Default stream port on US node
-    streamPort: 8080,
-    // Saved US node IP
-    usNodeKey: 'fifa2026_ts_us_node',
-    // Poll interval for stream health
-    healthInterval: 5000
-  };
-
-  let tsState = {
-    running: false,
-    selfIP: null,
-    selfName: null,
-    usNodeIP: localStorage.getItem(TS_CONFIG.usNodeKey) || '',
-    peers: [],
-    streamConnected: false,
-    streamUrl: '',
-    latency: null,
-    healthCheckId: null
-  };
-
-  // ── Check if Tailscale is running via local API ──
-  async function checkTailscaleStatus() {
-    try {
-      const resp = await fetch(`${TS_CONFIG.tsApiBase}/status`, {
-        signal: AbortSignal.timeout(2000)
-      });
-      if (!resp.ok) return false;
-      const data = await resp.json();
-      tsState.running = true;
-      tsState.selfIP = data.Self?.TailscaleIPs?.[0] || null;
-      tsState.selfName = data.Self?.HostName || 'Unknown';
-      tsState.peers = Object.values(data.Peer || {}).filter(p => p.Online);
-      return true;
-    } catch {
-      tsState.running = false;
-      return false;
-    }
-  }
-
-  // ── Update all UI elements based on TS state ──
-  function updateTailscaleUI() {
-    const statusEl = document.getElementById('streamStatus');
-    const tsStatusVal = document.getElementById('tsStatusValue');
-    const inIP = document.getElementById('tsInIP');
-    const tsInput = document.getElementById('tsUsInput');
-
-    if (tsState.running) {
-      if (statusEl) { statusEl.textContent = 'Connected'; statusEl.className = 'stream-status online'; }
-      if (tsStatusVal) { tsStatusVal.textContent = 'Running'; tsStatusVal.className = 'stream-info-value connected'; }
-      if (inIP) inIP.textContent = tsState.selfIP || 'Connected';
-      document.getElementById('tsStep1')?.classList.add('completed');
-      document.getElementById('tsStep2')?.classList.add('completed');
-
-      if (tsState.peers.length > 0 && document.getElementById('tsStep2')) {
-        document.getElementById('tsStep2').classList.add('completed');
-      }
-    } else {
-      if (statusEl) { statusEl.textContent = 'Offline'; statusEl.className = 'stream-status offline'; }
-      if (tsStatusVal) { tsStatusVal.textContent = 'Not running'; tsStatusVal.className = 'stream-info-value disconnected'; }
-      if (inIP) inIP.textContent = '--';
-    }
-
-    // Restore saved US node IP
-    if (tsInput && tsState.usNodeIP) {
-      tsInput.value = tsState.usNodeIP;
-      document.getElementById('tsUsIP').textContent = tsState.usNodeIP;
-    }
-  }
-
-  // ── Update stream status in info bar ──
-  function updateStreamStateUI() {
-    const usNodeVal = document.getElementById('usNodeValue');
-    const latencyVal = document.getElementById('latencyValue');
-    const streamVal = document.getElementById('streamStateValue');
-
-    if (usNodeVal) {
-      usNodeVal.textContent = tsState.usNodeIP || '--';
-      usNodeVal.className = tsState.usNodeIP ? 'stream-info-value connected' : 'stream-info-value';
-    }
-    if (latencyVal) {
-      latencyVal.textContent = tsState.latency !== null ? `${tsState.latency} ms` : '-- ms';
-      if (tsState.latency !== null) {
-        latencyVal.className = tsState.latency < 100 ? 'stream-info-value connected' :
-                               tsState.latency < 300 ? 'stream-info-value checking' : 'stream-info-value disconnected';
-      }
-    }
-    if (streamVal) {
-      streamVal.textContent = tsState.streamConnected ? 'Connected' : 'Disconnected';
-      streamVal.className = tsState.streamConnected ? 'stream-info-value connected' : 'stream-info-value disconnected';
-    }
-  }
-
-  // ── Scan network for Tailscale peers ──
-  async function scanNetwork() {
-    const noteText = document.getElementById('tailscaleNoteText');
-    const noteEl = document.getElementById('tailscaleNote');
-    const usIPEl = document.getElementById('tsUsIP');
-    const tsInput = document.getElementById('tsUsInput');
-
-    if (!noteText) return;
-
-    noteText.innerHTML = '🔍 <strong>Scanning Tailscale network...</strong>';
-    if (noteEl) noteEl.style.borderColor = 'rgba(var(--accent-rgb),0.25)';
-
-    const running = await checkTailscaleStatus();
-
-    if (!running) {
-      noteText.innerHTML = '❌ <strong>Tailscale not running.</strong> Install it from <code>tailscale.com/download</code> and connect to your tailnet.';
-      if (noteEl) noteEl.style.borderColor = 'rgba(230,57,70,0.2)';
-      updateTailscaleUI();
-      updateStreamStateUI();
-      return;
-    }
-
-    updateTailscaleUI();
-    const peerCount = tsState.peers.length;
-    const peerList = tsState.peers.map(p =>
-      `${p.HostName} (${p.TailscaleIPs?.[0] || 'no IP'})`
-    ).join(', ');
-
-    if (peerCount === 0) {
-      noteText.innerHTML = `✅ <strong>You're connected</strong> (${tsState.selfName}) but no other nodes found. Make sure your US machine is online on the same tailnet.`;
-      if (noteEl) noteEl.style.borderColor = 'rgba(241,196,15,0.2)';
-    } else {
-      // Try to find likely US node (by hostname or IP pattern)
-      const usPeer = tsState.peers.find(p =>
-        p.HostName?.toLowerCase().includes('us') ||
-        p.HostName?.toLowerCase().includes('america') ||
-        p.HostName?.toLowerCase().includes('stream')
-      ) || tsState.peers[0];
-
-      const usIP = usPeer.TailscaleIPs?.[0] || '';
-      if (usIP) {
-        tsState.usNodeIP = usIP;
-        localStorage.setItem(TS_CONFIG.usNodeKey, usIP);
-        if (usIPEl) usIPEl.textContent = usIP;
-        if (tsInput) tsInput.value = usIP;
-        document.getElementById('tsStep3')?.classList.add('completed');
-      }
-
-      noteText.innerHTML = `✅ <strong>Found ${peerCount} peer(s)</strong> on your tailnet: ${peerList}. <br>US node set to: <code>${usPeer.HostName} (${usIP})</code>. Click <strong>Ping US Node</strong> to test.`;
-      if (noteEl) noteEl.style.borderColor = 'rgba(46,204,113,0.2)';
-    }
-
-    updateStreamStateUI();
-  }
-
-  // ── Ping US node for latency ──
-  async function pingUSNode() {
-    const noteText = document.getElementById('tailscaleNoteText');
-    const noteEl = document.getElementById('tailscaleNote');
-    const latencyVal = document.getElementById('latencyValue');
-    const tsInput = document.getElementById('tsUsInput');
-
-    // Get IP from input or saved state
-    const ip = tsInput?.value || tsState.usNodeIP;
-    if (!ip) {
-      if (noteText) noteText.innerHTML = '⚠️ <strong>No US node IP set.</strong> Click <strong>Scan Network</strong> first or enter the IP manually.';
-      return;
-    }
-
-    tsState.usNodeIP = ip;
-    localStorage.setItem(TS_CONFIG.usNodeKey, ip);
-    document.getElementById('tsUsIP').textContent = ip;
-    if (tsInput) tsInput.value = ip;
-
-    if (noteText) noteText.innerHTML = `📶 <strong>Pinging ${ip}...</strong>`;
-    if (latencyVal) { latencyVal.textContent = '...'; latencyVal.className = 'stream-info-value checking'; }
-
-    const start = performance.now();
-    let success = false;
-
-    try {
-      // Try to reach the stream endpoint on the US node
-      const resp = await fetch(`http://${ip}:${TS_CONFIG.streamPort}/`, {
-        signal: AbortSignal.timeout(3000)
-      });
-      success = resp.ok;
-    } catch {
-      // Try raw ping via img trick to measure latency
-      success = false;
-    }
-
-    const latency = Math.round(performance.now() - start);
-    tsState.latency = latency;
-
-    if (success) {
-      document.getElementById('tsStep4')?.classList.add('completed');
-      if (noteText) noteText.innerHTML = `✅ <strong>US node reachable!</strong> Latency: <strong>${latency}ms</strong>. Stream port ${TS_CONFIG.streamPort} is responding. Click <strong>Connect Stream</strong> to watch.`;
-      if (noteEl) noteEl.style.borderColor = 'rgba(46,204,113,0.2)';
-    } else {
-      if (noteText) noteText.innerHTML = `⚠️ <strong>Node pinged (${latency}ms)</strong> but port ${TS_CONFIG.streamPort} not responding. On your US machine, run:<br><code>python3 -m http.server ${TS_CONFIG.streamPort}</code> or set up a stream relay.`;
-      if (noteEl) noteEl.style.borderColor = 'rgba(241,196,15,0.2)';
-    }
-
-    updateStreamStateUI();
-  }
-
-  // ── Connect to stream ──
-  function connectStream() {
-    const ip = tsState.usNodeIP;
-    if (!ip) {
-      alert('No US node configured. Click "Scan Network" or enter the IP manually.');
-      return;
-    }
-
-    const streamUrl = `http://${ip}:${TS_CONFIG.streamPort}/`;
-
-    const placeholder = document.getElementById('streamPlaceholder');
-    const video = document.getElementById('streamVideo');
-    const playerWrap = document.getElementById('streamPlayerWrap');
-    const desc = document.getElementById('streamPlaceholderDesc');
-
-    // For HLS stream: use hls.js if available, otherwise try direct video
-    if (window.Hls && streamUrl.endsWith('.m3u8')) {
-      const hls = new Hls();
-      hls.loadSource(streamUrl);
-      hls.attachMedia(video);
-      hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-    } else {
-      video.src = streamUrl;
-      video.play().catch(() => {
-        // Autoplay blocked — show controls
-        video.controls = true;
-      });
-    }
-
-    if (placeholder) placeholder.style.display = 'none';
-    if (video) { video.style.display = 'block'; video.muted = false; }
-    if (playerWrap) playerWrap.classList.add('playing');
-    if (desc) desc.textContent = `Streaming from ${ip}:${TS_CONFIG.streamPort}`;
-
-    tsState.streamConnected = true;
-    updateStreamStateUI();
-
-    // Start health checks
-    startStreamHealthCheck();
-  }
-
-  function disconnectStream() {
-    const video = document.getElementById('streamVideo');
-    const placeholder = document.getElementById('streamPlaceholder');
-    const playerWrap = document.getElementById('streamPlayerWrap');
-
-    if (video) { video.pause(); video.src = ''; video.style.display = 'none'; }
-    if (placeholder) placeholder.style.display = '';
-    if (playerWrap) playerWrap.classList.remove('playing');
-
-    tsState.streamConnected = false;
-    stopStreamHealthCheck();
-    updateStreamStateUI();
-  }
-
-  function startStreamHealthCheck() {
-    stopStreamHealthCheck();
-    tsState.healthCheckId = setInterval(async () => {
-      if (!tsState.streamConnected || !tsState.usNodeIP) return;
-      try {
-        const start = performance.now();
-        const resp = await fetch(`http://${tsState.usNodeIP}:${TS_CONFIG.streamPort}/`, {
-          signal: AbortSignal.timeout(2000)
-        });
-        tsState.latency = Math.round(performance.now() - start);
-        if (!resp.ok && tsState.streamConnected) {
-          // Stream might be down — but keep showing
-        }
-        updateStreamStateUI();
-      } catch {
-        tsState.latency = null;
-        updateStreamStateUI();
-      }
-    }, TS_CONFIG.healthInterval);
-  }
-
-  function stopStreamHealthCheck() {
-    if (tsState.healthCheckId) {
-      clearInterval(tsState.healthCheckId);
-      tsState.healthCheckId = null;
-    }
-  }
-
-  // ── Auto-detect on Watch section load ──
-  let tsInitialized = false;
-  function initTailscaleEngine() {
-    if (tsInitialized) return;
-    tsInitialized = true;
-
-    // Buttons
-    document.getElementById('tsScanBtn')?.addEventListener('click', scanNetwork);
-    document.getElementById('tsPingBtn')?.addEventListener('click', pingUSNode);
-    document.getElementById('streamConnectBtn')?.addEventListener('click', connectStream);
-    document.getElementById('streamDisconnect')?.addEventListener('click', disconnectStream);
-    document.getElementById('streamRefresh')?.addEventListener('click', () => {
-      disconnectStream();
-      setTimeout(connectStream, 500);
-    });
-    document.getElementById('streamFullscreen')?.addEventListener('click', () => {
-      document.getElementById('streamVideo')?.requestFullscreen?.();
-    });
-
-    // IP input change
-    document.getElementById('tsUsInput')?.addEventListener('change', (e) => {
-      tsState.usNodeIP = e.target.value.trim();
-      localStorage.setItem(TS_CONFIG.usNodeKey, tsState.usNodeIP);
-      document.getElementById('tsUsIP').textContent = tsState.usNodeIP;
-    });
-
-    // Auto-scan when Watch section becomes active
-    const watchSection = document.getElementById('watch');
-    if (watchSection) {
-      const observer = new MutationObserver(() => {
-        if (watchSection.classList.contains('active')) {
-          setTimeout(scanNetwork, 500);
-          observer.disconnect();
-        }
-      });
-      observer.observe(watchSection, { attributes: true, attributeFilter: ['class'] });
-
-      // Also scan immediately if already active
-      if (watchSection.classList.contains('active')) {
-        setTimeout(scanNetwork, 500);
-      }
-    }
-
-    // Restore saved IP
-    if (tsState.usNodeIP) {
-      document.getElementById('tsUsIP').textContent = tsState.usNodeIP;
-      const input = document.getElementById('tsUsInput');
-      if (input) input.value = tsState.usNodeIP;
-      updateStreamStateUI();
-    }
-
-    updateTailscaleUI();
-  }
-
-  // Init when Watch section is viewed
-  const watchSectionEl = document.getElementById('watch');
-  if (watchSectionEl) {
-    const obs = new MutationObserver(() => {
-      if (watchSectionEl.classList.contains('active')) {
-        initTailscaleEngine();
-      }
-    });
-    obs.observe(watchSectionEl, { attributes: true, attributeFilter: ['class'] });
-  }
-
-  // Also run on showSection for watch
-  const origShowSection = showSection;
-  showSection = function(id) {
-    origShowSection(id);
-    if (id === 'watch') {
-      setTimeout(initTailscaleEngine, 300);
-    }
+  let fallbackState = {
+    currentProviderIdx: 0,
+    consecutiveLagEvents: 0,
+    maxLagBeforeFallback: 5,
+    fallbackCooldown: false,
+    fallbackToastShown: false
   };
 
   // ══════════════════════════════════════════════════════════
+  //  STREAM HEALTH MONITOR — Lag detection + auto-fallback
+  // ══════════════════════════════════════════════════════════
+
+  let lagTimer = null, lagStartTime = null;
+
+  function updateFallbackToast(reason) {
+    const el = document.getElementById('fallbackReason');
+    if (el) el.textContent = reason || 'Detecting lag...';
+    const durEl = document.getElementById('fallbackDuration');
+    if (durEl && lagStartTime) {
+      const sec = Math.round((Date.now() - lagStartTime) / 1000);
+      durEl.textContent = `${sec}s`;
+    }
+  }
+
+  function showFallbackAlert() {
+    if (fallbackState.fallbackCooldown) return;
+    const toast = document.getElementById('fallbackToast');
+    if (!toast) return;
+    toast.classList.add('visible');
+    fallbackState.fallbackToastShown = true;
+    updateFallbackProviderPanel();
+  }
+
+  function hideFallbackAlert() {
+    const toast = document.getElementById('fallbackToast');
+    if (toast) toast.classList.remove('visible');
+    fallbackState.fallbackToastShown = false;
+    fallbackState.fallbackCooldown = true;
+    setTimeout(() => { fallbackState.fallbackCooldown = false; }, 30000);
+  }
+
+  // ── Switch to next provider in chain ──
+  function switchToNextProvider() {
+    fallbackState.currentProviderIdx = (fallbackState.currentProviderIdx + 1) % STREAM_PROVIDERS.length;
+    const provider = STREAM_PROVIDERS[fallbackState.currentProviderIdx];
+    if (provider.url) {
+      window.open(provider.url, '_blank', 'noopener,noreferrer');
+    }
+    hideFallbackAlert();
+    updateFallbackProviderPanel();
+
+    // Pulse the provider card
+    setTimeout(() => {
+      const card = document.getElementById(`fb-${provider.id}`);
+      if (card) { card.classList.add('pulse'); setTimeout(() => card.classList.remove('pulse'), 600); }
+    }, 200);
+  }
+
+  // ── Quick-launch a specific provider ──
+  function launchProvider(providerId) {
+    const provider = STREAM_PROVIDERS.find(p => p.id === providerId);
+    if (!provider) return;
+    const idx = STREAM_PROVIDERS.indexOf(provider);
+    fallbackState.currentProviderIdx = idx;
+    if (provider.url) {
+      window.open(provider.url, '_blank', 'noopener,noreferrer');
+    }
+    updateFallbackProviderPanel();
+  }
+
+  // ── Update provider panel status indicators ──
+  function updateFallbackProviderPanel() {
+    STREAM_PROVIDERS.forEach((p, i) => {
+      const card = document.getElementById(`fb-${p.id}`);
+      if (!card) return;
+      card.classList.toggle('active-provider', i === fallbackState.currentProviderIdx);
+    });
+  }
+
+  // ── Render provider panel ──
+  function renderFallbackProviders() {
+    const grid = document.getElementById('fallbackProvidersGrid');
+    if (!grid) return;
+    grid.innerHTML = STREAM_PROVIDERS.map((p, i) => {
+      const isCurrent = i === fallbackState.currentProviderIdx;
+      return `<div class="fb-provider-card ${isCurrent ? 'active-provider' : ''}" id="fb-${p.id}" onclick="(function(){
+        var p = window._hermes_fb_providers.find(x=>x.id==='${p.id}');
+        if(p && p.url) window.open(p.url,'_blank','noopener,noreferrer');
+      })()" title="Watch on ${p.name}">
+        <span class="fb-icon">${p.icon}</span>
+        <div class="fb-info">
+          <strong>${p.name}</strong>
+          <span>Opens in new tab — click to watch</span>
+        </div>
+        <span class="fb-tag ${p.tagClass}">${p.tag}</span>
+        <span class="fb-indicator ${isCurrent ? 'active' : ''}">${isCurrent ? '●' : '○'}</span>
+      </div>`;
+    }).join('');
+    window._hermes_fb_providers = STREAM_PROVIDERS;
+  }
+
+  // ── Init fallback system on Watch section load ──
+  function initFallbackSystem() {
+    document.getElementById('fbNextBtn')?.addEventListener('click', switchToNextProvider);
+    document.getElementById('fbDismissBtn')?.addEventListener('click', hideFallbackAlert);
+    renderFallbackProviders();
+    updateFallbackProviderPanel();
+  }
+
   //  INITIALIZATION
   // ══════════════════════════════════════════════════════════
 
@@ -2051,4 +1834,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   DBG('FIFA 2026 Premium Edition initialized ✓');
   DBG('Features: Lenis scroll · Parallax · Card tilt · Ripple · Scroll progress · Mobile overlay · Keyboard nav · Smart particles');
+
+  // Init fallback system if Watch section is already active
+  if (document.getElementById('watch')?.classList.contains('active')) {
+    setTimeout(initFallbackSystem, 100);
+  }
 });
