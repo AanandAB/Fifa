@@ -1617,6 +1617,22 @@ img { max-width: 100%; display: block; }
 /* ═══════════════════════════════════════════════════════════════
    YOUTUBE LIVE PLAYER — Embed live streams from YouTube channels
    ═══════════════════════════════════════════════════════════════ */
+.btn-live {
+  background: rgba(229, 9, 20, 0.2) !important;
+  border-color: rgba(229, 9, 20, 0.4) !important;
+  color: #fca5a5 !important;
+  animation: livePulse 2s ease infinite;
+}
+
+@keyframes livePulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(229, 9, 20, 0); }
+  50% { box-shadow: 0 0 12px rgba(229, 9, 20, 0.3); }
+}
+
+.btn-live:hover {
+  background: rgba(229, 9, 20, 0.35) !important;
+  border-color: #ef4444 !important;
+}
 .yt-live-section {
   margin-bottom: 20px;
   padding: 20px;
