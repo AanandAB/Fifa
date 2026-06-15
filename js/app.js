@@ -2235,45 +2235,92 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Refresh Group Standings with live data
+  // Calculate group standings from match results (ESPN standings API is empty)
   async function refreshLiveGroups() {
-    try {
-      const resp = await fetch(`${LMC_CONFIG.apiBase}/standings`, {
-        signal: AbortSignal.timeout(8000)
-      });
-      if (!resp.ok) return;
-      const data = await resp.json();
-      const children = data.children || [];
-      
-      if (children.length === 0) return;
-      
-      // Build live tables in format renderGroups expects
-      const liveTables = {};
-      for (const group of children) {
-        const groupName = (group.name || '').replace('Group ', '');
-        const table = [];
-        for (const entry of group.standings?.entries || []) {
-          const stats = {};
-          for (const s of entry.stats || []) {
-            stats[s.name] = s.value;
-          }
-          table.push({
-            name: entry.team?.displayName || entry.team?.shortDisplayName || '',
-            played: stats.gamesPlayed || 0,
-            won: stats.wins || 0,
-            drawn: stats.ties || 0,
-            lost: stats.losses || 0,
-            goalsFor: stats.goalsFor || 0,
-            goalsAgainst: stats.goalsAgainst || 0,
-            goalDiff: stats.pointDifferential || 0,
-            points: stats.points || 0
-          });
-        }
-        if (table.length > 0) liveTables[groupName] = table;
+    const groupOrder = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+    const groupData = {};
+    
+    // Initialize all groups from GROUPS
+    for (const group of groupOrder) {
+      const g = GROUPS[group];
+      if (!g) continue;
+      groupData[group] = {};
+      for (const teamName of g.teams) {
+        groupData[group][teamName] = { name: teamName, played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, goalDiff: 0, points: 0 };
       }
-      
-      renderGroups(Object.keys(liveTables).length > 0 ? liveTables : null);
-    } catch(e) {}
+    }
+    
+    // Fetch all match results (last 5 days + next 2)
+    const dates = [];
+    const now = new Date();
+    for (let i = -5; i <= 2; i++) {
+      const d = new Date(now);
+      d.setDate(d.getDate() + i);
+      dates.push(d.toISOString().slice(0, 10).replace(/-/g, ''));
+    }
+    
+    let matchCount = 0;
+    for (const dateStr of dates) {
+      try {
+        const resp = await fetch(`${LMC_CONFIG.apiBase}/scoreboard?dates=${dateStr}`, {
+          signal: AbortSignal.timeout(5000)
+        });
+        if (!resp.ok) continue;
+        const data = await resp.json();
+        
+        for (const ev of data.events || []) {
+          const comp = ev.competitions?.[0] || {};
+          const status = comp.status || {};
+          if (!status.type?.completed) continue; // only finished matches
+          
+          const competitors = comp.competitors || [];
+          const home = competitors.find(c => c.homeAway === 'home') || {};
+          const away = competitors.find(c => c.homeAway === 'away') || {};
+          const homeName = home.team?.displayName || '';
+          const awayName = away.team?.displayName || '';
+          const homeScore = parseInt(home.score) || 0;
+          const awayScore = parseInt(away.score) || 0;
+          
+          if (!homeName || !awayName) continue;
+          
+          // Find which group these teams belong to
+          for (const group of groupOrder) {
+            const g = groupData[group];
+            if (!g) continue;
+            const homeEntry = g[homeName];
+            const awayEntry = g[awayName];
+            
+            if (homeEntry && awayEntry) {
+              homeEntry.played++; awayEntry.played++;
+              homeEntry.goalsFor += homeScore; homeEntry.goalsAgainst += awayScore;
+              awayEntry.goalsFor += awayScore; awayEntry.goalsAgainst += homeScore;
+              
+              if (homeScore > awayScore) { homeEntry.won++; homeEntry.points += 3; awayEntry.lost++; }
+              else if (homeScore < awayScore) { awayEntry.won++; awayEntry.points += 3; homeEntry.lost++; }
+              else { homeEntry.drawn++; awayEntry.drawn++; homeEntry.points += 1; awayEntry.points += 1; }
+              
+              homeEntry.goalDiff = homeEntry.goalsFor - homeEntry.goalsAgainst;
+              awayEntry.goalDiff = awayEntry.goalsFor - awayEntry.goalsAgainst;
+              matchCount++;
+              break;
+            }
+          }
+        }
+      } catch(e) {}
+    }
+    
+    if (matchCount === 0) return; // no matches played yet
+    
+    // Convert to format renderGroups expects
+    const liveTables = {};
+    for (const group of groupOrder) {
+      const g = groupData[group];
+      if (!g) continue;
+      const table = Object.values(g).filter(t => t.played > 0);
+      if (table.length > 0) liveTables[group] = table;
+    }
+    
+    renderGroups(Object.keys(liveTables).length > 0 ? liveTables : null);
   }
 
   // Unified refresh: Fixtures + Groups + Bracket
