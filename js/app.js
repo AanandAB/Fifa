@@ -2154,6 +2154,150 @@ document.addEventListener('DOMContentLoaded', () => {
   // Expose toggle globally
   window._lmcToggleMatch = toggleMatchDetails;
 
+  // ══════════════════════════════════════════════════════════
+  //  LIVE DATA: Auto-refresh Fixtures, Groups & Bracket
+  // ══════════════════════════════════════════════════════════
+
+  let liveDataInterval = null;
+
+  // Fetch ALL match scores from ESPN (multi-day)
+  async function fetchAllMatchScores() {
+    const scores = {};
+    // Fetch today + next 2 days
+    const dates = [];
+    const now = new Date();
+    for (let i = -1; i <= 3; i++) {
+      const d = new Date(now);
+      d.setDate(d.getDate() + i);
+      dates.push(d.toISOString().slice(0, 10).replace(/-/g, ''));
+    }
+    
+    for (const dateStr of dates) {
+      try {
+        const resp = await fetch(`${LMC_CONFIG.apiBase}/scoreboard?dates=${dateStr}`, {
+          signal: AbortSignal.timeout(5000)
+        });
+        if (!resp.ok) continue;
+        const data = await resp.json();
+        for (const ev of data.events || []) {
+          const comp = ev.competitions?.[0] || {};
+          const status = comp.status || {};
+          const competitors = comp.competitors || [];
+          const home = competitors.find(c => c.homeAway === 'home') || {};
+          const away = competitors.find(c => c.homeAway === 'away') || {};
+          const key = `${home.team?.displayName || ''}_${away.team?.displayName || ''}`;
+          scores[key] = {
+            homeScore: home.score ?? 0,
+            awayScore: away.score ?? 0,
+            status: status.type?.name || 'STATUS_SCHEDULED',
+            state: status.type?.state || 'pre',
+            clock: status.displayClock || '',
+            completed: status.type?.completed || false,
+            date: ev.date
+          };
+        }
+      } catch(e) {}
+    }
+    return scores;
+  }
+
+  // Refresh Fixtures with live scores
+  async function refreshLiveFixtures() {
+    const container = document.getElementById('fixturesContainer');
+    if (!container) return;
+    
+    const scores = await fetchAllMatchScores();
+    const cards = container.querySelectorAll('.match-card');
+    
+    cards.forEach(card => {
+      const homeEl = card.querySelector('.match-team.home span');
+      const awayEl = card.querySelector('.match-team.away span');
+      const scoreEl = card.querySelector('.match-score');
+      const statusEl = card.querySelector('.match-status');
+      
+      if (!homeEl || !awayEl) return;
+      
+      const homeName = homeEl.textContent.trim();
+      const awayName = awayEl.textContent.trim();
+      const key = `${homeName}_${awayName}`;
+      const altKey = `${awayName}_${homeName}`;
+      const match = scores[key] || scores[altKey];
+      
+      if (match && match.state === 'in') {
+        if (scoreEl) scoreEl.textContent = `${match.homeScore} - ${match.awayScore}`;
+        if (statusEl) { statusEl.textContent = `⚽ ${match.clock}`; statusEl.className = 'match-status live'; }
+        card.classList.add('live');
+      } else if (match && match.completed) {
+        if (scoreEl) scoreEl.textContent = `${match.homeScore} - ${match.awayScore}`;
+        if (statusEl) { statusEl.textContent = 'FT'; statusEl.className = 'match-status ft'; }
+        card.classList.add('ft');
+      }
+    });
+  }
+
+  // Refresh Group Standings with live data
+  async function refreshLiveGroups() {
+    try {
+      const resp = await fetch(`${LMC_CONFIG.apiBase}/standings`, {
+        signal: AbortSignal.timeout(8000)
+      });
+      if (!resp.ok) return;
+      const data = await resp.json();
+      const children = data.children || [];
+      
+      if (children.length === 0) return;
+      
+      // Build live tables in format renderGroups expects
+      const liveTables = {};
+      for (const group of children) {
+        const groupName = (group.name || '').replace('Group ', '');
+        const table = [];
+        for (const entry of group.standings?.entries || []) {
+          const stats = {};
+          for (const s of entry.stats || []) {
+            stats[s.name] = s.value;
+          }
+          table.push({
+            name: entry.team?.displayName || entry.team?.shortDisplayName || '',
+            played: stats.gamesPlayed || 0,
+            won: stats.wins || 0,
+            drawn: stats.ties || 0,
+            lost: stats.losses || 0,
+            goalsFor: stats.goalsFor || 0,
+            goalsAgainst: stats.goalsAgainst || 0,
+            goalDiff: stats.pointDifferential || 0,
+            points: stats.points || 0
+          });
+        }
+        if (table.length > 0) liveTables[groupName] = table;
+      }
+      
+      renderGroups(Object.keys(liveTables).length > 0 ? liveTables : null);
+    } catch(e) {}
+  }
+
+  // Unified refresh: Fixtures + Groups + Bracket
+  async function refreshAllLiveData() {
+    await Promise.all([
+      refreshLiveFixtures(),
+      refreshLiveGroups(),
+      refreshBracket()
+    ]);
+  }
+
+  // Start global live data refresh
+  function startLiveDataRefresh() {
+    refreshAllLiveData();
+    liveDataInterval = setInterval(refreshAllLiveData, 60000); // every 60s
+  }
+
+  function stopLiveDataRefresh() {
+    if (liveDataInterval) {
+      clearInterval(liveDataInterval);
+      liveDataInterval = null;
+    }
+  }
+
   // ── Free Stream Providers (click to open in new tab) ──
   const STREAM_PROVIDERS = [
     { id: 'epicsports', name: 'EpicSports.in',       icon: '⚽', url: 'https://www.epicsports.in/',     type: 'external', tag: 'RECOMMENDED', tagClass: 'live' },
@@ -2276,6 +2420,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderFallbackProviders();
     updateFallbackProviderPanel();
     startMatchCenter();
+    startLiveDataRefresh();
   }
 
   //  INITIALIZATION
@@ -2311,4 +2456,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('watch')?.classList.contains('active')) {
     setTimeout(initFallbackSystem, 100);
   }
+  
+  // Start live data refresh globally (affects Fixtures, Groups, Bracket)
+  startLiveDataRefresh();
 });

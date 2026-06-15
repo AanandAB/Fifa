@@ -1614,6 +1614,20 @@ img { max-width: 100%; display: block; }
   margin-left: 4px;
 }
 
+/* Live fixture scores */
+.match-card.live {
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  background: rgba(239, 68, 68, 0.05) !important;
+}
+.match-card.live .match-score {
+  color: #f87171 !important;
+  font-weight: 700;
+}
+.match-card.ft {
+  opacity: 0.75;
+}
+.match-card.ft .match-status { color: #4ade80; }
+
 /* ═══════════════════════════════════════════════════════════════
    YOUTUBE LIVE PLAYER — Embed live streams from YouTube channels
    ═══════════════════════════════════════════════════════════════ */
